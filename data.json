@@ -1,0 +1,32 @@
+[
+ {
+  "url": "https://google.com",
+  "login": "nairi.oganisyan@nairio.com",
+  "password": ""
+ },
+ {
+  "url": "https://youtube.com",
+  "login": "nairio.comh",
+  "password": "222"
+ },
+ {
+  "url": "https://nairio.com",
+  "login": "https://nairio.com",
+  "password": "https://nairio.com"
+ },
+ {
+  "url": "https://nairio.com/youtube",
+  "login": "https://nairio.com",
+  "password": "https://nairio.com"
+ },
+ {
+  "url": "https://nairio.com",
+  "login": "n",
+  "password": ""
+ },
+ {
+  "url": "https://nairio.com",
+  "login": "nnn",
+  "password": ""
+ }
+]

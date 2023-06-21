@@ -1,11 +1,14 @@
 import './App.css';
 import React, {useEffect, useState} from "react";
-import {MenuItem, Menu, TextField, Dialog, DialogActions, DialogContent, Button, ButtonGroup, Container, Divider, Fab, IconButton, Stack} from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import EditIcon from '@mui/icons-material/Edit';
+import {TextField, Dialog, DialogActions, DialogContent, Button, Fab} from "@mui/material";
 
-function AddDialog({onAdd}) {
+import Webview from "./webview";
+import Card from "./card";
+import AddressBar from "./AddressBar";
+
+const {onData, openWindow, addItem, deleteItem, editItem} = window.main;
+
+function AddDialog({addItem}) {
     const [open, setOpen] = React.useState(false);
     const [url, setURL] = React.useState("");
     const [login, setLogin] = React.useState("");
@@ -20,28 +23,31 @@ function AddDialog({onAdd}) {
     };
 
     const onEnter = (e) => {
-        if(e.key==="Enter") {
-            onAdd(url, login, password);
+        if (e.key === "Enter") {
+            addItem(url, login, password);
             handleClose()
         }
     }
 
     return (
-        <div>
+        <div className={"add"}>
             <Fab style={{margin: 8}} color="primary" size="small" onClick={handleClickOpen}>+</Fab>
             <Dialog open={open} onClose={handleClose}>
                 <DialogContent>
-                    <TextField onKeyPress={onEnter}  onChange={e => setURL(e.target.value)} autoFocus margin="dense" id="url" label="URL"
+                    <TextField onKeyPress={onEnter} onChange={e => setURL(e.target.value)} autoFocus margin="dense"
+                               id="url" label="URL"
                                fullWidth variant="standard"/>
-                    <TextField onKeyPress={onEnter}  onChange={e => setLogin(e.target.value)} margin="dense" id="login" label="login"
+                    <TextField onKeyPress={onEnter} onChange={e => setLogin(e.target.value)} margin="dense" id="login"
+                               label="login"
                                fullWidth variant="standard"/>
-                    <TextField onKeyPress={onEnter}  onChange={e => setPassword(e.target.value)} margin="dense" id="password" label="password"
+                    <TextField onKeyPress={onEnter} onChange={e => setPassword(e.target.value)} margin="dense"
+                               id="password" label="password"
                                fullWidth variant="standard"/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
                     <Button onClick={() => {
-                        onAdd(url, login, password);
+                        addItem(url, login, password);
                         handleClose()
                     }}>Ok</Button>
                 </DialogActions>
@@ -49,102 +55,68 @@ function AddDialog({onAdd}) {
         </div>
     );
 }
-function EditDialog({index, deleteItem, editItem, data}) {
-    const [open, setOpen] = React.useState(false);
-    const [url, setURL] = React.useState(data.url);
-    const [login, setLogin] = React.useState(data.login);
-    const [password, setPassword] = React.useState(data.password);
 
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
+const global = {};
 
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    const onEnter = (e) => {
-        if(e.key==="Enter") {
-            editItem(index, url, login, password);
-            handleClose()
-        }
-    }
-
-    return (
-        <div>
-            <BasicMenu index={index} editItem={handleClickOpen} deleteItem={deleteItem}/>
-            <Dialog open={open} onClose={handleClose}>
-                <DialogContent>
-                    <TextField onKeyPress={onEnter} value={url} onChange={e => setURL(e.target.value)} autoFocus margin="dense" id="url" label="URL"
-                               fullWidth variant="standard"/>
-                    <TextField onKeyPress={onEnter} value={login} onChange={e => setLogin(e.target.value)} margin="dense" id="login" label="login"
-                               fullWidth variant="standard"/>
-                    <TextField onKeyPress={onEnter} value={password} onChange={e => setPassword(e.target.value)} margin="dense" id="password" label="password"
-                               fullWidth variant="standard"/>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={() => {
-                        editItem(index, url, login, password);
-                        handleClose()
-                    }}>Ok</Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    );
-}
-function BasicMenu({editItem, deleteItem, index}) {
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    return (
-        <div>
-            <IconButton aria-label="delete" size="small" onClick={handleClick}>
-                <MoreVertIcon fontSize="inherit"/>
-            </IconButton>
-            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                <MenuItem onClick={()=>{
-                    editItem(index);
-                    handleClose();
-                }}><IconButton size="small"><EditIcon size="small"/></IconButton>Edit</MenuItem>
-                <MenuItem onClick={()=>{
-                    deleteItem(index);
-                    handleClose();
-                }}><IconButton size="small"><DeleteIcon size="small"/></IconButton>Delete</MenuItem>
-            </Menu>
-        </div>
-    );
-}
-
-const {onData, openWindow, addItem, deleteItem, editItem} = window.main;
-
-function App() {
+export default function App() {
+    const [address, setAddress] = useState("");
     const [data, setData] = useState([]);
+    const [canGoBack, setCanGoBack] = useState(false);
+    const [canGoForward, setCanGoForward] = useState(false);
+    const bigWebview = React.createRef();
 
     useEffect(() => onData(setData), []);
 
+    const toBigContainer = (container, webview) => {
+        const bigContainer = bigWebview.current;
+        if (global.container && global.webview) {
+            global.webview.setAttribute("zoom", "0.1");
+            global.webview.setZoomFactor(0.1);
+            global.container.append(global.webview);
+            global.webview.removeEventListener("did-navigate", global.didNavigate);
+        }
+
+        global.didNavigate = (event) => {
+            setAddress(event.url);
+            setCanGoBack(webview.canGoBack());
+            setCanGoForward(webview.canGoForward())
+        };
+        webview.addEventListener("did-navigate", global.didNavigate);
+
+        webview.setAttribute("zoom", "1");
+        webview.setZoomFactor(1);
+
+        global.container = container;
+        global.webview = webview;
+
+        bigContainer.append(webview);
+        setAddress(webview.src);
+    }
+
     return (
-        <Container>
-            <AddDialog onAdd={addItem}/>
-            <Divider/>
-            <div className="group">
-                <ButtonGroup orientation="vertical" variant="text">
-                    {data.map(({url, login, password}, i) => (
-                        <Stack key={i} direction="row" alignItems="center" spacing={1}>
-                            <Button fullWidth={true} onClick={() => openWindow(i)}>{login}</Button>
-                            <EditDialog index={i} data={{url, login, password}} deleteItem={deleteItem} editItem={editItem}/>
-                        </Stack>
+        <>
+            <div className="body">
+                <div className="cards">
+                    {data.map(({url, login, password}, index) => (
+                        <Card key={index} data={{index, url, login, password, editItem, deleteItem}}>
+                            <Webview data={{url, login}} onclick={toBigContainer}/>
+                        </Card>
                     ))}
-                </ButtonGroup>
+                </div>
+                <div className="big-webview-container">
+                    <AddressBar
+                        canGoForward={canGoForward}
+                        canGoBack={canGoBack}
+                        address={address}
+                        onChange={setAddress}
+                        goBack={() => global.webview.goBack()}
+                        goForward={() => global.webview.goForward()}
+                        onEnter={() => global.webview.src = address}
+                    />
+                    <div className="big-webview" ref={bigWebview}/>
+                </div>
             </div>
-        </Container>
+            <AddDialog addItem={addItem}/>
+        </>
     );
 }
-
-export default App;

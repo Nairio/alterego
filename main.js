@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, screen} = require("electron");
+const {app, BrowserWindow, ipcMain, screen, Menu, MenuItem} = require("electron");
 
 const path = require("path");
 const fs = require("fs");
@@ -47,12 +47,12 @@ const createWindow = () => {
     const {height, width} = screen.getPrimaryDisplay().workAreaSize;
 
     const mainWindow = new BrowserWindow({
-        alwaysOnTop: true,
-        width: Math.round(width * mainWidth),
         x: 0,
         y: 0,
         height,
+        width,
         webPreferences: {
+            webviewTag: true,
             nodeIntegration: true,
             contextIsolation: false,
             preload: path.join(__dirname, "main-preload.js")
@@ -61,16 +61,20 @@ const createWindow = () => {
 
     mainWindow.on("close", app.quit);
 
+    const contextMenu = new Menu();
+    const menuItem = new MenuItem({label: "DevTools"});
+    menuItem.click = () => mainWindow.webContents.openDevTools();
+    contextMenu.append(menuItem);
+
+    mainWindow.webContents.on('context-menu', (event, params) => {
+        contextMenu.popup(mainWindow, params.x, params.y);
+    });
+
     app.isPackaged
         ? mainWindow.loadFile(path.join(__dirname, "build", "index.html"))
         : mainWindow.loadURL("http://localhost:3000");
 };
-
-ipcMain.setMaxListeners(1000);
-ipcMain.on("getData", (event) => {
-    NData.setonupdate((data) => event.reply("getData-reply", data));
-});
-ipcMain.on("openWindow", async (event, index) => {
+const openWindow = (index) => {
     const {height, width} = screen.getPrimaryDisplay().workAreaSize;
     const {url, title} = NData.getData()[index];
     const partition = `persist:${title}${index}`;
@@ -80,6 +84,7 @@ ipcMain.on("openWindow", async (event, index) => {
         width: Math.round(width * (1 - mainWidth)),
         height,
         webPreferences: {
+            webviewTag: true,
             nodeIntegration: true,
             contextIsolation: false,
             partition,
@@ -87,7 +92,17 @@ ipcMain.on("openWindow", async (event, index) => {
         },
     });
 
-    await win.loadURL(url);
+    const isHTTP = url.toString().includes("http");
+
+    isHTTP ? win.loadURL(url) : win.loadFile(url);
+}
+
+ipcMain.setMaxListeners(1000);
+ipcMain.on("getData", (event) => {
+    NData.setonupdate((data) => event.reply("getData-reply", data));
+});
+ipcMain.on("openWindow", (event, index) => {
+    openWindow(index);
     event.reply("openWindow-reply", "ok");
 });
 ipcMain.on("addItem", async (event, data) => {
