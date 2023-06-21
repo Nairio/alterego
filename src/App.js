@@ -4,7 +4,7 @@ import {TextField, Dialog, DialogActions, DialogContent, Button, Fab} from "@mui
 
 import Webview from "./webview";
 import Card from "./card";
-import AddressBar from "./AddressBar";
+import AddressBar from "./addressBar";
 
 const {onData, openWindow, addItem, deleteItem, editItem} = window.main;
 
