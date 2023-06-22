@@ -9,6 +9,6 @@ export default function EditDialog({deleteItem, editItem, item, index}) {
         <div className={"edit"}>
             <ContextMenu index={index} editItem={() => setOpen(true)} deleteItem={deleteItem}/>
             <ModalDialog index={index} item={item} onEnter={editItem} open={open} onClose={() => setOpen(false)}/>
-        </>
+        </div>
     );
 }
