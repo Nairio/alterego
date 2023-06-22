@@ -1,7 +1,7 @@
 import React from "react";
 import EditDialog from "./edit-dialog";
 
-export default function Card({item, deleteItem, editItem, index, children}) {
+export default function Card({item, index, deleteItem, editItem, children}) {
     return (
         <div className={"card"}>
             {children}

@@ -11,7 +11,7 @@ export default function Cards({onClick, data: {onData, deleteItem, editItem}}) {
     return (
         <div className="cards">
             {data.map((item, index) => (
-                <Card key={index} index={index} editItem={editItem} deleteItem={deleteItem} item={item}>
+                <Card key={index} index={index} item={item} editItem={editItem} deleteItem={deleteItem} >
                     <Webview item={item} onclick={onClick}/>
                 </Card>
             ))}

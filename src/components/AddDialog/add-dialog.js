@@ -7,7 +7,7 @@ export default function AddDialog({addItem}) {
 
     return (
         <div className={"add"}>
-            <Fab style={{margin: 8}} color="primary" size="small" onClick={() => setOpen(true)}>+</Fab>
+            <Fab color="primary" size="small" onClick={() => setOpen(true)}>+</Fab>
             <ModalDialog onEnter={addItem} open={open} onClose={() => setOpen(false)}/>
         </div>
     );

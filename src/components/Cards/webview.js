@@ -30,7 +30,6 @@ export default function Webview({item, onclick}) {
                     partition={`persist:${partition}`}
                     zoom="0.1"
                     useragent={item.useragent}
-                    //useragent="Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko"
                 />
             </div>
             <div className="fake" onClick={onClick}/>

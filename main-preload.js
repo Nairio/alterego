@@ -20,7 +20,7 @@ window.main = (() => {
         },
         deleteItem: async (index) => send("deleteItem", index),
         addItem: async (item) => send("addItem", item),
-        editItem: async ({item, index}) => send("editItem", {item, index}),
+        editItem: async (item, index) => send("editItem", {item, index}),
     }
 })()
 
