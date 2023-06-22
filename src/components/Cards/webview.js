@@ -1,9 +1,9 @@
 import "../../App.css";
-import React, {useEffect} from "react";
+import React, {createRef, useEffect} from "react";
 
 export default function Webview({item, onclick}) {
-    const WVRef = React.createRef();
-    const CRef = React.createRef();
+    const WVRef = createRef();
+    const CRef = createRef();
     const partition = window.btoa(JSON.stringify(item))
 
     useEffect(() => {

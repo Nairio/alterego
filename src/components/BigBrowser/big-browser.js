@@ -1,5 +1,5 @@
 import AddressBar from "./address-bar";
-import React, {useEffect, useState} from "react";
+import React, {createRef, useEffect, useState} from "react";
 
 const global = {};
 
@@ -7,13 +7,13 @@ export default function BigBrowser({card: {container, webview}}) {
     const [address, setAddress] = useState("");
     const [canGoBack, setCanGoBack] = useState(false);
     const [canGoForward, setCanGoForward] = useState(false);
-    const bigWebview = React.createRef();
+    const bigWebviewContainerRef = createRef();
 
     const addHTTP = (s) => s.toString().includes("http") ? s : `https://${s}`;
-    const toBigContainer = (container, webview) => {
+    const toBigWebviewContainer = (container, webview) => {
         if (!container || !webview) return;
 
-        const bigContainer = bigWebview.current;
+        const bigWebviewContainer = bigWebviewContainerRef.current;
         if (global.container && global.webview) {
             global.webview.setAttribute("zoom", "0.1");
             global.webview.setZoomFactor(0.1);
@@ -34,12 +34,12 @@ export default function BigBrowser({card: {container, webview}}) {
         global.container = container;
         global.webview = webview;
 
-        bigContainer.append(webview);
+        bigWebviewContainer.append(webview);
         setAddress(addHTTP(webview.src));
     }
 
     useEffect(() => {
-        toBigContainer(container, webview)
+        toBigWebviewContainer(container, webview)
     }, [container, webview])
 
 
@@ -54,7 +54,7 @@ export default function BigBrowser({card: {container, webview}}) {
                 goForward={() => global.webview.goForward()}
                 onEnter={() => global.webview.src = address}
             />
-            <div className="big-webview" ref={bigWebview}/>
+            <div className="big-webview-container" ref={bigWebviewContainerRef}/>
         </div>
     )
 }

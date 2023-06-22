@@ -1,9 +1,9 @@
-import React from "react";
+import React, {useState} from "react";
 import ModalDialog from "../modal-dialog";
 import ContextMenu from "./context-menu";
 
 export default function EditDialog({deleteItem, editItem, item, index}) {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     return (
         <div className={"edit"}>
