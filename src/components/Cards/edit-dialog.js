@@ -3,7 +3,8 @@ import {Button, Dialog, DialogActions, DialogContent, IconButton, Menu, MenuItem
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-function EditDialog({deleteItem, editItem, data}) {
+
+export default function EditDialog({deleteItem, editItem, data}) {
     const [open, setOpen] = React.useState(false);
     const [url, setURL] = React.useState(data.url);
     const [login, setLogin] = React.useState(data.login);
@@ -76,19 +77,4 @@ function EditDialog({deleteItem, editItem, data}) {
             </Dialog>
         </div>
     );
-}
-
-export default function Card({data: {deleteItem, editItem, index, url, login, password}, children}){
-    return (
-        <div className={"card"}>
-            {children}
-            <div className={"footer"}>
-                <EditDialog data={{index, url, login, password}} deleteItem={deleteItem} editItem={editItem}/>
-                <div>
-                    <div className={"url"}>{url}</div>
-                    <div className={"login"}>{login}</div>
-                </div>
-            </div>
-        </div>
-    )
 }

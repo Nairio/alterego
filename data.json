@@ -28,5 +28,15 @@
   "url": "https://nairio.com",
   "login": "nnn",
   "password": ""
+ },
+ {
+  "url": "https://reactjs.org",
+  "login": "",
+  "password": ""
+ },
+ {
+  "url": "https://dzen.ru/?yredirect=true",
+  "login": "",
+  "password": ""
  }
 ]
