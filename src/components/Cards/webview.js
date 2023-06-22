@@ -1,4 +1,4 @@
-import '../../App.css';
+import "../../App.css";
 import React, {useEffect} from "react";
 
 export default function Webview({data: {url, login}, onclick}) {

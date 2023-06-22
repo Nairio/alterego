@@ -2,14 +2,19 @@ const {app, BrowserWindow, ipcMain, screen, Menu, MenuItem} = require("electron"
 
 const path = require("path");
 const fs = require("fs");
-const mainWidth = 0.2;
-const NData = (()=>{
-    const filePath = "/Users/nairio/JS/Projects/nairio.com/projects/browser/data.json";
+const NData = (() => {
+    const fileName = path.join(app.getPath("appData"), app.getName(), "data.json");
+
+    if (!fs.existsSync(fileName)) {
+        fs.mkdirSync(path.dirname(fileName), {recursive: true});
+        fs.writeFileSync(fileName, "[]");
+    }
+
     let onupdate;
     let data;
 
-    const fileUpdated = ()=>{
-        data = JSON.parse(fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' }));
+    const fileUpdated = () => {
+        data = JSON.parse(fs.readFileSync(fileName, {encoding: "utf8"}));
         onupdate(data);
     }
 
@@ -18,26 +23,26 @@ const NData = (()=>{
         fileUpdated();
     }
 
-    const watcher = fs.watch(filePath, fileUpdated);
+    const watcher = fs.watch(fileName, fileUpdated);
 
-    process.on('SIGINT', () => {
+    process.on("SIGINT", () => {
         watcher.close();
         process.exit()
     });
 
     const addItem = async ({url, login, password}) => {
         data.push({url, login, password});
-        fs.writeFileSync(filePath, JSON.stringify(data, null, " "));
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
     const deleteItem = async (i) => {
-        data.splice(i,1);
-        fs.writeFileSync(filePath, JSON.stringify(data, null, " "));
+        data.splice(i, 1);
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
     const editItem = async ({index, url, login, password}) => {
         data[index] = {url, login, password};
-        fs.writeFileSync(filePath, JSON.stringify(data, null, " "));
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
     return {setonupdate, addItem, deleteItem, editItem, getData: () => data}
@@ -66,7 +71,7 @@ const createWindow = () => {
     menuItem.click = () => mainWindow.webContents.openDevTools();
     contextMenu.append(menuItem);
 
-    mainWindow.webContents.on('context-menu', (event, params) => {
+    mainWindow.webContents.on("context-menu", (event, params) => {
         contextMenu.popup(mainWindow, params.x, params.y);
     });
 
@@ -74,36 +79,10 @@ const createWindow = () => {
         ? mainWindow.loadFile(path.join(__dirname, "build", "index.html"))
         : mainWindow.loadURL("http://localhost:3000");
 };
-const openWindow = (index) => {
-    const {height, width} = screen.getPrimaryDisplay().workAreaSize;
-    const {url, title} = NData.getData()[index];
-    const partition = `persist:${title}${index}`;
-    const win = new BrowserWindow({
-        x: Math.round(width * mainWidth),
-        y: 0,
-        width: Math.round(width * (1 - mainWidth)),
-        height,
-        webPreferences: {
-            webviewTag: true,
-            nodeIntegration: true,
-            contextIsolation: false,
-            partition,
-            preload: path.join(__dirname, "preload.js")
-        },
-    });
-
-    const isHTTP = url.toString().includes("http");
-
-    isHTTP ? win.loadURL(url) : win.loadFile(url);
-}
 
 ipcMain.setMaxListeners(1000);
 ipcMain.on("getData", (event) => {
     NData.setonupdate((data) => event.reply("getData-reply", data));
-});
-ipcMain.on("openWindow", (event, index) => {
-    openWindow(index);
-    event.reply("openWindow-reply", "ok");
 });
 ipcMain.on("addItem", async (event, data) => {
     await NData.addItem(data);

@@ -1,4 +1,4 @@
-import './App.css';
+import "./App.css";
 import Cards from "./components/Cards/cards";
 import AddDialog from "./components/AddDialog/add-dialog";
 import BigBrowser from "./components/BigBrowser/big-browser";
