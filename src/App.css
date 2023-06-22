@@ -52,6 +52,7 @@
 
 .cards .card .footer div:first-child {
     font-weight: bold;
+    min-width: 22px;
 }
 
 .cards .card .webview-container {

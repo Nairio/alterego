@@ -1,10 +1,10 @@
 import "../../App.css";
 import React, {useEffect} from "react";
 
-export default function Webview({data: {url, login}, onclick}) {
+export default function Webview({item, onclick}) {
     const WVRef = React.createRef();
     const CRef = React.createRef();
-    const partition = window.btoa(JSON.stringify({url, login}))
+    const partition = window.btoa(JSON.stringify(item))
 
     useEffect(() => {
         const webview = WVRef.current;
@@ -25,10 +25,11 @@ export default function Webview({data: {url, login}, onclick}) {
                 <webview
                     className="webview"
                     ref={WVRef}
-                    src={url}
+                    src={item.url}
                     nodeintegration="true"
                     partition={`persist:${partition}`}
                     zoom="0.1"
+                    useragent={item.useragent}
                     //useragent="Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko"
                 />
             </div>

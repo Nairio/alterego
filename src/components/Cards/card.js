@@ -1,15 +1,15 @@
 import React from "react";
 import EditDialog from "./edit-dialog";
 
-export default function Card({data: {deleteItem, editItem, index, url, login, password}, children}) {
+export default function Card({item, deleteItem, editItem, index, children}) {
     return (
         <div className={"card"}>
             {children}
             <div className={"footer"}>
-                <EditDialog data={{index, url, login, password}} deleteItem={deleteItem} editItem={editItem}/>
+                <EditDialog index={index} item={item} deleteItem={deleteItem} editItem={editItem}/>
                 <div>
-                    <div>{url}</div>
-                    <div>{login}</div>
+                    <div>{item.url}</div>
+                    <div>{item.login}</div>
                 </div>
             </div>
         </div>

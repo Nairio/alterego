@@ -18,10 +18,9 @@ window.main = (() => {
             ipcRenderer.on("getData-reply", (event, data) => func(data));
             onDataUsed = true;
         },
-        openWindow: async (index) => send("openWindow", index),
         deleteItem: async (index) => send("deleteItem", index),
-        addItem: async (url, login, password) => send("addItem", {url, login, password}),
-        editItem: async (index, url, login, password) => send("editItem", {index, url, login, password}),
+        addItem: async (item) => send("addItem", item),
+        editItem: async ({item, index}) => send("editItem", {item, index}),
     }
 })()
 

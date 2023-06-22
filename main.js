@@ -30,8 +30,8 @@ const NData = (() => {
         process.exit()
     });
 
-    const addItem = async ({url, login, password}) => {
-        data.push({url, login, password});
+    const addItem = async (item) => {
+        data.push(item);
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
@@ -40,8 +40,8 @@ const NData = (() => {
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
-    const editItem = async ({index, url, login, password}) => {
-        data[index] = {url, login, password};
+    const editItem = async ({item, index}) => {
+        data[index] = item;
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
@@ -84,16 +84,16 @@ ipcMain.setMaxListeners(1000);
 ipcMain.on("getData", (event) => {
     NData.setonupdate((data) => event.reply("getData-reply", data));
 });
-ipcMain.on("addItem", async (event, data) => {
-    await NData.addItem(data);
+ipcMain.on("addItem", async (event, item) => {
+    await NData.addItem(item);
     event.reply("addItem-reply", "ok");
 });
 ipcMain.on("deleteItem", async (event, index) => {
     await NData.deleteItem(index);
     event.reply("deleteItem-reply", "ok");
 });
-ipcMain.on("editItem", async (event, data) => {
-    await NData.editItem(data);
+ipcMain.on("editItem", async (event, {item, index}) => {
+    await NData.editItem({item, index});
     event.reply("editItem-reply", "ok");
 });
 
