@@ -15,7 +15,6 @@ export default function ContextMenu({WVRef, editItem, deleteItem, index}) {
     const handleClose = () => {
         setAnchorEl(null);
     };
-
     const openDevTools = ()=>{
         WVRef.current.openDevTools();
         handleClose()

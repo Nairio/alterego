@@ -15,10 +15,10 @@ export default function BigBrowser({webview}) {
 
         const computedStyle1 = window.getComputedStyle(topleft.current);
         const computedStyle2 = window.getComputedStyle(widthheight.current);
-        const top = computedStyle1.getPropertyValue('top');
-        const left = computedStyle1.getPropertyValue('left');
-        const width = computedStyle2.getPropertyValue('width');
-        const height = computedStyle2.getPropertyValue('height');
+        const top = computedStyle1.getPropertyValue("top");
+        const left = computedStyle1.getPropertyValue("left");
+        const width = computedStyle2.getPropertyValue("width");
+        const height = computedStyle2.getPropertyValue("height");
 
         if (global.webview) {
             global.webview.setAttribute("zoom", "0.1");

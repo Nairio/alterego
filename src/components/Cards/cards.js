@@ -10,15 +10,14 @@ export default function Cards({onClick, data: {onData, deleteItem, editItem}}) {
 
     return (
         <div className="cards">
-            {data.map((item, index) => {
+            {data.map((item, i) => {
                 const WVRef = createRef();
                 return (
-                        <Card WVRef={WVRef} key={index} index={index} item={item} editItem={editItem} deleteItem={deleteItem}>
-                            <Webview WVRef={WVRef} item={item} onclick={onClick}/>
-                        </Card>
-                    )
-                }
-            )}
+                    <Card WVRef={WVRef} key={i} index={i} item={item} editItem={editItem} deleteItem={deleteItem}>
+                        <Webview WVRef={WVRef} item={item} onclick={onClick}/>
+                    </Card>
+                )
+            })}
         </div>
     )
 }

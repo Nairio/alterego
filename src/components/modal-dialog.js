@@ -5,8 +5,11 @@ const fields = [
     {id: "url", title: "URL", type: "text"},
     {id: "login", title: "Login", type: "text"},
     {id: "phone", title: "Phone", type: "text"},
+    {id: "name", title: "Name", type: "text"},
+    {id: "birth", title: "Birth", type: "text"},
     {id: "useragent", title: "UserAgent", type: "text"},
-    {id: "password", title: "Password", type: "text"}
+    {id: "password", title: "Password", type: "text"},
+    {id: "comment", title: "Comment", type: "text"}
 ];
 
 export default function ModalDialog({item: defitem = {}, index, onEnter, open, onClose}) {

@@ -53,7 +53,7 @@ const NMenu = (win, items) => {
     return {
         popup: (e, {x, y}) => contextMenu.popup(win, x, y)
     }
-}
+};
 
 const createWindow = () => {
     const {height, width} = screen.getPrimaryDisplay().workAreaSize;
@@ -77,23 +77,20 @@ const createWindow = () => {
     mainWindow.webContents.on("context-menu", menu.popup);
 
     mainWindow.webContents.on("did-attach-webview", (event, webview) => {
-        const menu = NMenu(mainWindow, [["WebView DevTools", () => webview.openDevTools({ mode: 'detach' })]]);
+        const menu = NMenu(mainWindow, [["WebView DevTools", () => webview.openDevTools()]]);
         webview.addListener("context-menu", menu.popup);
-
-        webview.addListener("did-finish-load", async () => {
-            await webview.executeJavaScript(`
-                console.log(window);
-                window.addEventListener("resize", ()=>{
-                    console.log(window.innerWidth)
-                })
+        webview.addListener("did-finish-load",  () => {
+             webview.executeJavaScript(`
+                console.log("Hello from main process");
+                window.sendToMainProcess('my-channel', "Main Process JS > Main Process");
+                window.sendToPreload("Main Process JS > Preload");
             `);
         });
 
     });
 
-
-    ipcMain.on("openDevTools", () =>{
-        mainWindow.webContents.send("openDevTools")
+    ipcMain.on("my-channel", (event, data) => {
+        console.log(data);
     });
 
     app.isPackaged
@@ -118,10 +115,4 @@ ipcMain.on("editItem", async (event, {item, index}) => {
     event.reply("editItem-reply", "ok");
 });
 
-
-
 app.whenReady().then(createWindow);
-
-
-
-
