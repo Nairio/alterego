@@ -4,6 +4,7 @@ import {Button, Dialog, DialogActions, DialogContent, TextField} from "@mui/mate
 const fields = [
     {id: "url", title: "URL", type: "text"},
     {id: "login", title: "Login", type: "text"},
+    {id: "phone", title: "Phone", type: "text"},
     {id: "useragent", title: "UserAgent", type: "text"},
     {id: "password", title: "Password", type: "text"}
 ];

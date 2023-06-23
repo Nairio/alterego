@@ -7,13 +7,13 @@ import {useState} from "react";
 const {onData, addItem, deleteItem, editItem} = window.main;
 
 export default function App() {
-    const [card, setCard] = useState({});
+    const [webview, setWebview] = useState(null);
 
     return (
         <>
-            <Cards onClick={setCard} data={{onData, deleteItem, editItem}}/>
+            <Cards onClick={setWebview} data={{onData, deleteItem, editItem}}/>
             <AddDialog addItem={addItem}/>
-            <BigBrowser card={card}/>
+            <BigBrowser webview={webview}/>
         </>
     );
 }

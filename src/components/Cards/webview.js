@@ -1,9 +1,8 @@
 import "../../App.css";
-import React, {createRef, useEffect} from "react";
+import React, {useEffect} from "react";
 
-export default function Webview({item, onclick}) {
-    const WVRef = createRef();
-    const CRef = createRef();
+
+export default function Webview({WVRef, item, onclick}) {
     const partition = window.btoa(JSON.stringify(item))
 
     useEffect(() => {
@@ -11,28 +10,24 @@ export default function Webview({item, onclick}) {
         webview.addEventListener("dom-ready", () => webview.setZoomFactor(+webview.getAttribute("zoom")));
     }, []);
 
-    const onClick = () => {
-        const container = CRef.current;
-        const webview = WVRef.current;
-        if (webview.parentNode === container) {
-            onclick({container, webview})
-        }
-    }
 
     return (
         <>
-            <div className="webview-container" ref={CRef}>
+            <div className="webview-container">
                 <webview
+                    allowpopups="true"
                     className="webview"
                     ref={WVRef}
                     src={item.url}
                     nodeintegration="true"
+                    disablewebsecurity="true"
+                    nodeintegrationinsubframes="true"
                     partition={`persist:${partition}`}
                     zoom="0.1"
                     useragent={item.useragent}
                 />
             </div>
-            <div className="fake" onClick={onClick}/>
+            <div className="fake" onClick={() => onclick(WVRef.current)}/>
         </>
     );
 }

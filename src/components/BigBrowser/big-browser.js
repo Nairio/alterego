@@ -2,22 +2,28 @@ import AddressBar from "./address-bar";
 import React, {createRef, useEffect, useState} from "react";
 
 const global = {};
+const topleft = createRef();
+const widthheight = createRef();
 
-export default function BigBrowser({card: {container, webview}}) {
+export default function BigBrowser({webview}) {
     const [address, setAddress] = useState("");
     const [canGoBack, setCanGoBack] = useState(false);
     const [canGoForward, setCanGoForward] = useState(false);
-    const bigWebviewContainerRef = createRef();
-
     const addHTTP = (s) => s.toString().includes("http") ? s : `https://${s}`;
-    const toBigWebviewContainer = (container, webview) => {
-        if (!container || !webview) return;
+    const toBigWebviewContainer = () => {
+        if (!webview) return;
 
-        const bigWebviewContainer = bigWebviewContainerRef.current;
-        if (global.container && global.webview) {
+        const computedStyle1 = window.getComputedStyle(topleft.current);
+        const computedStyle2 = window.getComputedStyle(widthheight.current);
+        const top = computedStyle1.getPropertyValue('top');
+        const left = computedStyle1.getPropertyValue('left');
+        const width = computedStyle2.getPropertyValue('width');
+        const height = computedStyle2.getPropertyValue('height');
+
+        if (global.webview) {
             global.webview.setAttribute("zoom", "0.1");
             global.webview.setZoomFactor(0.1);
-            global.container.append(global.webview);
+            global.webview.removeAttribute("style");
             global.webview.removeEventListener("did-navigate", global.didNavigate);
         }
 
@@ -27,20 +33,20 @@ export default function BigBrowser({card: {container, webview}}) {
             setCanGoForward(webview.canGoForward())
         };
         webview.addEventListener("did-navigate", global.didNavigate);
-
+        webview.setAttribute("style", `position:absolute;left:${left};top:${top};width:${width};height:${height}`);
         webview.setAttribute("zoom", "1");
         webview.setZoomFactor(1);
-
-        global.container = container;
-        global.webview = webview;
-
-        bigWebviewContainer.append(webview);
         setAddress(addHTTP(webview.src));
+        global.webview = webview;
     }
 
     useEffect(() => {
-        toBigWebviewContainer(container, webview)
-    }, [container, webview])
+        window.addEventListener("resize", toBigWebviewContainer);
+        toBigWebviewContainer();
+        return () => {
+            window.removeEventListener("resize", toBigWebviewContainer);
+        };
+    }, [webview]);
 
 
     return (
@@ -54,7 +60,9 @@ export default function BigBrowser({card: {container, webview}}) {
                 goForward={() => global.webview.goForward()}
                 onEnter={() => global.webview.src = address}
             />
-            <div className="big-webview-container" ref={bigWebviewContainerRef}/>
+            <div className="big-webview-container" ref={widthheight}>
+                <div className={"topleft"} ref={topleft}/>
+            </div>
         </div>
     )
 }

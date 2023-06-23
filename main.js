@@ -47,6 +47,13 @@ const NData = (() => {
 
     return {setonupdate, addItem, deleteItem, editItem, getData: () => data}
 })();
+const NMenu = (win, items) => {
+    const contextMenu = new Menu();
+    items.forEach(([label, click]) => contextMenu.append(new MenuItem({label, click})));
+    return {
+        popup: (e, {x, y}) => contextMenu.popup(win, x, y)
+    }
+}
 
 const createWindow = () => {
     const {height, width} = screen.getPrimaryDisplay().workAreaSize;
@@ -66,13 +73,27 @@ const createWindow = () => {
 
     mainWindow.on("close", app.quit);
 
-    const contextMenu = new Menu();
-    const menuItem = new MenuItem({label: "DevTools"});
-    menuItem.click = () => mainWindow.webContents.openDevTools();
-    contextMenu.append(menuItem);
+    const menu = NMenu(mainWindow, [["App DevTools", () => mainWindow.webContents.openDevTools()]]);
+    mainWindow.webContents.on("context-menu", menu.popup);
 
-    mainWindow.webContents.on("context-menu", (event, params) => {
-        contextMenu.popup(mainWindow, params.x, params.y);
+    mainWindow.webContents.on("did-attach-webview", (event, webview) => {
+        const menu = NMenu(mainWindow, [["WebView DevTools", () => webview.openDevTools({ mode: 'detach' })]]);
+        webview.addListener("context-menu", menu.popup);
+
+        webview.addListener("did-finish-load", async () => {
+            await webview.executeJavaScript(`
+                console.log(window);
+                window.addEventListener("resize", ()=>{
+                    console.log(window.innerWidth)
+                })
+            `);
+        });
+
+    });
+
+
+    ipcMain.on("openDevTools", () =>{
+        mainWindow.webContents.send("openDevTools")
     });
 
     app.isPackaged
@@ -96,6 +117,8 @@ ipcMain.on("editItem", async (event, {item, index}) => {
     await NData.editItem({item, index});
     event.reply("editItem-reply", "ok");
 });
+
+
 
 app.whenReady().then(createWindow);
 

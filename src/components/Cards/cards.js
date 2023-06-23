@@ -1,6 +1,6 @@
 import Card from "./card";
 import Webview from "./webview";
-import React, {useEffect, useState} from "react";
+import React, {createRef, useEffect, useState} from "react";
 
 
 export default function Cards({onClick, data: {onData, deleteItem, editItem}}) {
@@ -10,11 +10,15 @@ export default function Cards({onClick, data: {onData, deleteItem, editItem}}) {
 
     return (
         <div className="cards">
-            {data.map((item, index) => (
-                <Card key={index} index={index} item={item} editItem={editItem} deleteItem={deleteItem} >
-                    <Webview item={item} onclick={onClick}/>
-                </Card>
-            ))}
+            {data.map((item, index) => {
+                const WVRef = createRef();
+                return (
+                        <Card WVRef={WVRef} key={index} index={index} item={item} editItem={editItem} deleteItem={deleteItem}>
+                            <Webview WVRef={WVRef} item={item} onclick={onClick}/>
+                        </Card>
+                    )
+                }
+            )}
         </div>
     )
 }
