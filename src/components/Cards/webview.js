@@ -2,11 +2,13 @@ import "../../App.css";
 import React, {useEffect} from "react";
 const path = require('path');
 
+
 export default function Webview({WVRef, item, onclick}) {
     const partition = window.btoa(JSON.stringify(item))
 
     useEffect(() => {
         const webview = WVRef.current;
+
         webview.addEventListener("dom-ready", () => webview.setZoomFactor(+webview.getAttribute("zoom")));
         webview.addEventListener("dom-ready", () => {
             webview.executeJavaScript(`
@@ -15,6 +17,8 @@ export default function Webview({WVRef, item, onclick}) {
                 window.sendToPreload("Renderer Process JS > Preload");
             `);
         });
+
+
     }, []);
 
     return (

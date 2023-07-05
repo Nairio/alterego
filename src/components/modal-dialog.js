@@ -8,7 +8,8 @@ const fields = [
     {id: "name", title: "Name", type: "text"},
     {id: "birth", title: "Birth", type: "text"},
     {id: "useragent", title: "UserAgent", type: "text"},
-    {id: "password", title: "Password", type: "text"},
+    {id: "password", title: "Password", type: "password"},
+    {id: "proxy", title: "Proxy", type: "text"},
     {id: "comment", title: "Comment", type: "text"}
 ];
 

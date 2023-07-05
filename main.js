@@ -72,21 +72,39 @@ const createWindow = () => {
     });
 
     mainWindow.on("close", app.quit);
+    mainWindow.on("hide", app.quit);
 
     const menu = NMenu(mainWindow, [["App DevTools", () => mainWindow.webContents.openDevTools()]]);
     mainWindow.webContents.on("context-menu", menu.popup);
-
-    mainWindow.webContents.on("did-attach-webview", (event, webview) => {
-        const menu = NMenu(mainWindow, [["WebView DevTools", () => webview.openDevTools()]]);
-        webview.addListener("context-menu", menu.popup);
-        webview.addListener("did-finish-load",  () => {
-             webview.executeJavaScript(`
+    mainWindow.webContents.on("did-attach-webview", (event, webViewContents) => {
+        const menu = NMenu(mainWindow, [
+            ["WebView DevTools", () => webViewContents.openDevTools()],
+            ["Clear Cache", () => webViewContents.session.clearCache()]
+        ]);
+        webViewContents.addListener("context-menu", menu.popup);
+        webViewContents.addListener("did-finish-load", () => {
+            webViewContents.executeJavaScript(`
                 console.log("Hello from main process");
                 window.sendToMainProcess('my-channel', "Main Process JS > Main Process");
                 window.sendToPreload("Main Process JS > Preload");
+                console.log("#search");
             `);
         });
 
+        const proxyRules = "95.217.167.241:8080";
+        const acceptLanguage = "hy";
+        const userAgent = webViewContents.getUserAgent();
+        const latitude = 40.177628;
+        const longitude = 44.512555;
+        const accuracy = 1;
+        const platform = undefined;
+
+        //console.log(NData.getData());
+
+        webViewContents.session.setProxy({proxyRules});
+        webViewContents.debugger.attach();
+        webViewContents.debugger.sendCommand("Emulation.setUserAgentOverride", {acceptLanguage, userAgent, platform});
+        webViewContents.debugger.sendCommand("Emulation.setGeolocationOverride", {latitude, longitude, accuracy});
     });
 
     ipcMain.on("my-channel", (event, data) => {
@@ -114,5 +132,6 @@ ipcMain.on("editItem", async (event, {item, index}) => {
     await NData.editItem({item, index});
     event.reply("editItem-reply", "ok");
 });
+
 
 app.whenReady().then(createWindow);
