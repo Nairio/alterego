@@ -10,6 +10,10 @@ const fields = [
     {id: "useragent", title: "UserAgent", type: "text"},
     {id: "password", title: "Password", type: "password"},
     {id: "proxy", title: "Proxy", type: "text"},
+    {id: "lang", title: "Language", type: "text"},
+    {id: "lat", title: "Latitude", type: "text"},
+    {id: "lng", title: "Longitude", type: "text"},
+    {id: "scriptfile", title: "ScriptFile", type: "text"},
     {id: "comment", title: "Comment", type: "text"}
 ];
 
