@@ -1,4 +1,6 @@
 const {ipcRenderer} = require("electron");
+
+
 window.fileWrite = (filename, data) => {
     return new Promise(resolve => {
         ipcRenderer.send("fileWrite", {filename, data});
@@ -20,6 +22,7 @@ window.getDataValue = (id) => {
         ipcRenderer.on("getDataValue-reply", (event, data) => resolve(data));
     }))
 }
+
 
 
 

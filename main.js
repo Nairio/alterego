@@ -98,22 +98,8 @@ const NdataItems = (() => {
     return {addDataItem, getDataItems: (index) => dataItems[index]}
 })()
 
-ipcMain.on("getDataValue", (event, {id, index}) => {
-    event.reply("getDataValue-reply", NData.getData()[index][id])
-});
-ipcMain.on("addDataItem", (event, {item, index}) => {
-    NdataItems.addDataItem(item, index);
-});
 ipcMain.on("getDataItems", (event, index) => {
     event.reply("getDataItems-reply", NdataItems.getDataItems(index));
-});
-ipcMain.on("fileRead", (event, {filename}) => {
-    const data = fs.readFileSync(path.join(getDirName("downloadDirectory"), filename), "utf8");
-    event.reply("fileRead-reply", data)
-});
-ipcMain.on("fileWrite", (event, {filename, data}) => {
-    fs.writeFileSync(path.join(getDirName("downloadDirectory"), filename), data);
-    event.reply("fileWrite-reply", "")
 });
 ipcMain.on("getData", (event) => {
     NData.setonupdate((data) => event.reply("getData-reply", data));
@@ -138,13 +124,10 @@ const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, l
         ["Clear Cache", () => webViewContents.session.clearCache()],
     ];
 
-    webViewContents.executeJavaScript(`window.dataIndex = ${index};`);
-
     if (scriptfile) {
         const fileName = getFileName("", "scripts", scriptfile);
         menuItems.push(["Open Script File", () => shellExec(fileName)]);
         menuItems.push(["Open Download Directory", () => shellExec(getDirName("downloadDirectory"))]);
-
         webViewContents.addListener("did-finish-load", () => {
             const script = fs.readFileSync(fileName, "utf8");
             script && webViewContents.executeJavaScript(script);
@@ -164,6 +147,24 @@ const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, l
         latitude: +lat,
         longitude: +lng,
         accuracy: 1
+    });
+
+    webViewContents.ipc.on("getDataValue", (event, {id}) => {
+        const items = NData.getData();
+        const item = items[index];
+        const value = item[id];
+        event.reply("getDataValue-reply", value)
+    });
+    webViewContents.ipc.on("addDataItem", (event, {item}) => {
+        NdataItems.addDataItem(item, index);
+    });
+    webViewContents.ipc.on("fileRead", (event, {filename}) => {
+        const data = fs.readFileSync(path.join(getDirName("downloadDirectory"), filename), "utf8");
+        event.reply("fileRead-reply", data)
+    });
+    webViewContents.ipc.on("fileWrite", (event, {filename, data}) => {
+        fs.writeFileSync(path.join(getDirName("downloadDirectory"), filename), data);
+        event.reply("fileWrite-reply", "")
     });
 }
 const createWindow = () => {
