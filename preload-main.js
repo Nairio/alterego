@@ -23,7 +23,17 @@ window.main = (() => {
         editItem: async (item, index) => send("editItem", {item, index}),
         getDataItems: (index) => send("getDataItems", index)
     }
-})()
+})();
+
+
+ipcRenderer.on("leftTop", (event) => {
+    const topleft = document.querySelector(".topleft");
+    const x = window.outerWidth - window.innerWidth + topleft.offsetLeft;
+    const y = window.outerHeight - window.innerHeight + topleft.offsetTop;
+    event.sender.send("leftTop-reply", {x, y})
+});
+
+
 
 
 

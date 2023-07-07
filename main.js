@@ -1,6 +1,9 @@
 const {app, BrowserWindow, webContents, ipcMain, screen, Menu, MenuItem} = require("electron");
 const path = require("path");
 const fs = require("fs");
+const {exec} = require('child_process');
+const robot = require("robotjs");
+
 
 const getDirName = (...items) => {
     const dirName = path.join(app.getPath("appData"), app.getName(), ...items);
@@ -19,7 +22,6 @@ const getFileName = (defVal, ...items) => {
     return filepath;
 }
 const shellExec = (fileName) => {
-    const {exec} = require('child_process');
     let openCommand;
     if (process.platform === 'win32') {
         openCommand = `explorer "${fileName}"`;
@@ -90,13 +92,14 @@ const NData = (() => {
 })()
 const NdataItems = (() => {
     const dataItems = {};
-    const addDataItem = (item, index)=>{
+    const addDataItem = (item, index) => {
         dataItems[index] = dataItems[index] || [];
         dataItems[index].push(item);
     }
 
     return {addDataItem, getDataItems: (index) => dataItems[index]}
 })()
+
 
 ipcMain.on("getDataItems", (event, index) => {
     event.reply("getDataItems-reply", NdataItems.getDataItems(index));
@@ -136,7 +139,7 @@ const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, l
 
     webViewContents.addListener("context-menu", NMenu(mainWindow, menuItems).popup);
     webViewContents.session.setProxy({proxyRules: proxy});
-    webViewContents.session.setPreloads([path.join(__dirname, "preload.js")]);
+    webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
     webViewContents.debugger.attach();
     (useragent || lang) && webViewContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
         acceptLanguage: lang,
@@ -175,17 +178,17 @@ const createWindow = () => {
         y: 0,
         height,
         width,
+        //fullscreen: true,
         webPreferences: {
             webviewTag: true,
             nodeIntegration: true,
             nodeIntegrationInSubFrames: true,
             contextIsolation: false,
-            preload: path.join(__dirname, "main-preload.js")
+            preload: path.join(__dirname, "preload-main.js")
         },
     });
 
     mainWindow.on("close", app.quit);
-    mainWindow.on("hide", app.quit);
 
     const menu = NMenu(mainWindow, [["App DevTools", () => mainWindow.webContents.openDevTools()]]);
     mainWindow.webContents.on("context-menu", menu.popup);
@@ -195,6 +198,32 @@ const createWindow = () => {
         if (items.length === allWebContents.length) {
             allWebContents.forEach((webViewContents, i) => onWebContents(i, mainWindow, webViewContents, items[i]))
         }
+    });
+
+    ipcMain.on("robotClick", (event, element) => {
+        mainWindow.webContents.send("leftTop");
+        ipcMain.on("leftTop-reply", (e, page) => {
+            const workArea = screen.getPrimaryDisplay().workArea;
+            robot.moveMouseSmooth(workArea.x + page.x + element.x, workArea.y + page.y + element.y);
+            robot.mouseToggle("down");
+            setTimeout(() => {
+                robot.mouseToggle("up");
+                robot.mouseClick();
+                event.reply("robotClick-reply")
+            }, 100);
+        });
+    });
+    ipcMain.on("robotKeyPress", (event, {key, modifier}) => {
+        robot.keyToggle(key, "down", modifier);
+        setTimeout(() => {
+            robot.keyToggle(key, "up", modifier);
+            robot.keyTap(key, modifier);
+            event.reply("robotKeyPress-reply")
+        }, 100);
+    });
+    ipcMain.on("robotTypeText", (event, {text}) => {
+        robot.typeString(text);
+        event.reply("robotTypeText-reply");
     });
 
     app.isPackaged
