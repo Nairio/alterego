@@ -14,7 +14,7 @@ export default function Cards({onClick, data: {onData, deleteItem, editItem}}) {
                 const WVRef = createRef();
                 return (
                     <Card WVRef={WVRef} key={i} index={i} item={item} editItem={editItem} deleteItem={deleteItem}>
-                        <Webview WVRef={WVRef} item={item} onclick={onClick}/>
+                        <Webview WVRef={WVRef} item={item} onclick={onClick} first={i===0}/>
                     </Card>
                 )
             })}

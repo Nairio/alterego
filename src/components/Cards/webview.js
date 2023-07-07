@@ -2,11 +2,12 @@ import "../../App.css";
 import React, {useEffect, useState} from "react";
 
 
-export default function Webview({WVRef, item, onclick}) {
+export default function Webview({WVRef, item, onclick, first}) {
     const [src, setSRC] = useState(item.autostart ? item.url : "about:blank");
     useEffect(() => {
         const webview = WVRef.current;
         webview.addEventListener("dom-ready", () => webview.setZoomFactor(+webview.getAttribute("zoom")));
+        first && onClickHandler();
     }, []);
 
     const onClickHandler = () => {
