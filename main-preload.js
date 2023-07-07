@@ -18,9 +18,10 @@ window.main = (() => {
             ipcRenderer.on("getData-reply", (event, data) => func(data));
             onDataUsed = true;
         },
-        deleteItem: async (index) => send("deleteItem", index),
+        deleteItem: async (index) => confirm("Delete?") && send("deleteItem", index),
         addItem: async (item) => send("addItem", item),
         editItem: async (item, index) => send("editItem", {item, index}),
+        getDataItems: (index) => send("getDataItems", index)
     }
 })()
 
