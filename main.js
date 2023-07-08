@@ -126,6 +126,7 @@ ipcMain.on("editItem", async (event, {item, index}) => {
 
 
 const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, lat, lng}) => {
+
     const menuItems = [
         ["Reload", () => webViewContents.reload()],
         ["WebView DevTools", () => webViewContents.openDevTools()],

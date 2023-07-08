@@ -31,7 +31,7 @@ export default function Webview({WVRef, item, onclick, first}) {
             <div className="webview-container">
                 <webview
                     webpreferences={WP({
-                        nodeIntegration: true,
+                        //nodeIntegration: true,
                         contextIsolation: false,
                         allowRunningInsecureContent: true,
                         webSecurity: false
