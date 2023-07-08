@@ -4,7 +4,7 @@ const fs = require("fs");
 const {exec} = require('child_process');
 const robot = require("robotjs");
 
-
+const loadIndex = {};
 const getDirName = (...items) => {
     const dirName = path.join(app.getPath("appData"), app.getName(), ...items);
     if (!fs.existsSync(dirName)) {
@@ -92,13 +92,17 @@ const NData = (() => {
 })()
 const NdataItems = (() => {
     const dataItems = {};
-    const addDataItem = (item, index) => {
-        dataItems[index] = dataItems[index] || [];
-        dataItems[index].push(item);
-    }
-
-    return {addDataItem, getDataItems: (index) => dataItems[index]}
+    const setDataItems = (items, index) => dataItems[index] = items;
+    return {setDataItems, getDataItems: (index) => dataItems[index]}
 })()
+const confirm = (mainWindow, text)=>{
+    return new Promise(resolve => {
+        mainWindow.webContents.send("confirm", text);
+        ipcMain.on("confirm-reply", (e, result) => {
+            resolve(result)
+        });
+    })
+}
 
 
 ipcMain.on("getDataItems", (event, index) => {
@@ -120,11 +124,12 @@ ipcMain.on("editItem", async (event, {item, index}) => {
     event.reply("editItem-reply", "ok");
 });
 
+
 const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, lat, lng}) => {
     const menuItems = [
         ["Reload", () => webViewContents.reload()],
         ["WebView DevTools", () => webViewContents.openDevTools()],
-        ["Clear Cache", () => webViewContents.session.clearCache()],
+        ["Clear Cache", async () => await confirm(mainWindow, "Clear Cache?") && webViewContents.session.clearCache()],
     ];
 
     if (scriptfile) {
@@ -132,6 +137,10 @@ const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, l
         menuItems.push(["Open Script File", () => shellExec(fileName)]);
         menuItems.push(["Open Download Directory", () => shellExec(getDirName("downloadDirectory"))]);
         webViewContents.addListener("did-finish-load", () => {
+            if (webViewContents.getURL() === "about:blank") return;
+
+            loadIndex[index] = loadIndex[index] || 0;
+            loadIndex[index]++;
             const script = fs.readFileSync(fileName, "utf8");
             script && webViewContents.executeJavaScript(script);
         });
@@ -141,15 +150,18 @@ const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, l
     webViewContents.session.setProxy({proxyRules: proxy});
     webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
     webViewContents.debugger.attach();
-    (useragent || lang) && webViewContents.debugger.sendCommand("Emulation.setUserAgentOverride", {
-        acceptLanguage: lang,
-        userAgent: useragent,
-        platform: "EVM"
-    });
+
+    (useragent && !lang) && webViewContents.session.setUserAgent(useragent);
+    (useragent && lang) && webViewContents.session.setUserAgent(useragent, lang);
+
     webViewContents.debugger.sendCommand("Emulation.setGeolocationOverride", {
         latitude: +lat,
         longitude: +lng,
         accuracy: 1
+    });
+
+    webViewContents.ipc.on("getLoadIndex", (event) => {
+        event.reply("getLoadIndex-reply", loadIndex[index])
     });
 
     webViewContents.ipc.on("getDataValue", (event, {id}) => {
@@ -158,8 +170,8 @@ const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, l
         const value = item[id];
         event.reply("getDataValue-reply", value)
     });
-    webViewContents.ipc.on("addDataItem", (event, {item}) => {
-        NdataItems.addDataItem(item, index);
+    webViewContents.ipc.on("setDataItems", (event, {items}) => {
+        NdataItems.setDataItems(items, index);
     });
     webViewContents.ipc.on("fileRead", (event, {filename}) => {
         const data = fs.readFileSync(path.join(getDirName("downloadDirectory"), filename), "utf8");
@@ -221,7 +233,7 @@ const createWindow = () => {
             event.reply("robotKeyPress-reply")
         }, 100);
     });
-    ipcMain.on("robotTypeText", (event, {text}) => {
+    ipcMain.on("robotTypeText", (event, text) => {
         robot.typeString(text);
         event.reply("robotTypeText-reply");
     });

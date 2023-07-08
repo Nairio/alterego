@@ -32,7 +32,7 @@ export default function ModalDialog({item: defitem = {}, index, onEnter, open, o
             <DialogContent>
                 {[...fields, ...dataItems].map(({id,title,type}, i) => (
                     <TextField
-                        key={i}
+                        key={id}
                         autoFocus={i === 0}
                         defaultValue={item[id]}
                         onKeyPress={e => e.key === "Enter" && onEnterHandle()}

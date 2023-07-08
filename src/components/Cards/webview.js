@@ -7,7 +7,7 @@ export default function Webview({WVRef, item, onclick, first}) {
     useEffect(() => {
         const webview = WVRef.current;
         webview.addEventListener("dom-ready", () => webview.setZoomFactor(+webview.getAttribute("zoom")));
-        first && onClickHandler();
+        first && item.autostart && onClickHandler();
     }, []);
 
     const onClickHandler = () => {

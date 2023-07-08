@@ -12,12 +12,12 @@ window.fileRead = (filename) => {
         ipcRenderer.on("fileRead-reply", (event, data) => resolve(data));
     })
 }
-window.addDataItem = (item) => {
-    ipcRenderer.send("addDataItem", {item, index: window.dataIndex});
+window.setDataItems = (items) => {
+    ipcRenderer.send("setDataItems", {items});
 }
 window.getDataValue = (id) => {
     return new Promise((resolve => {
-        ipcRenderer.send("getDataValue", {id, index: window.dataIndex});
+        ipcRenderer.send("getDataValue", {id});
         ipcRenderer.on("getDataValue-reply", (event, data) => resolve(data));
     }))
 }
@@ -51,7 +51,7 @@ window.robotClick = (element) => {
     })
 }
 
-window.robotKeyPress = (key, modifier) => {
+window.robotKeyPress = (key, modifier=[]) => {
     return new Promise(resolve => {
         ipcRenderer.send("robotKeyPress", {key, modifier});
         ipcRenderer.on("robotKeyPress-reply", resolve);
@@ -60,11 +60,17 @@ window.robotKeyPress = (key, modifier) => {
 
 window.robotTypeText = (text) => {
     return new Promise(resolve => {
-        ipcRenderer.send("robotTypeText", {text});
+        ipcRenderer.send("robotTypeText", text);
         ipcRenderer.on("robotTypeText-reply", resolve);
     })
 }
 
+window.getLoadIndex = () => {
+    return new Promise(resolve => {
+        ipcRenderer.send("getLoadIndex");
+        ipcRenderer.on("getLoadIndex-reply", (e, data) => resolve(data));
+    })
+};
 
 
 
