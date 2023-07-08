@@ -95,7 +95,7 @@ const NdataItems = (() => {
     const setDataItems = (items, index) => dataItems[index] = items;
     return {setDataItems, getDataItems: (index) => dataItems[index]}
 })()
-const confirm = (mainWindow, text)=>{
+const confirm = (mainWindow, text) => {
     return new Promise(resolve => {
         mainWindow.webContents.send("confirm", text);
         ipcMain.on("confirm-reply", (e, result) => {
@@ -125,11 +125,20 @@ ipcMain.on("editItem", async (event, {item, index}) => {
 });
 
 
-const onWebContents = (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, lat, lng}) => {
+const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, lat, lng}) => {
     const menuItems = [
         ["Reload", () => webViewContents.reload()],
         ["WebView DevTools", () => webViewContents.openDevTools()],
-        ["Clear Cache", async () => await confirm(mainWindow, "Clear Cache?") && webViewContents.session.clearCache()],
+        ["Clear Cache", async () => {
+            if (await confirm(mainWindow, "Clear Cache")) {
+                await webViewContents.session.clearCache();
+                await webViewContents.session.clearHostResolverCache();
+                await webViewContents.session.clearAuthCache();
+                await webViewContents.session.clearStorageData();
+                await webViewContents.clearHistory();
+                await webViewContents.reload()
+            }
+        }],
     ];
 
     if (scriptfile) {
