@@ -6,14 +6,14 @@ import SearchIcon from "@mui/icons-material/Search";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
-export default function AddressBar({canGoForward, canGoBack, address, onEnter, onChange, goBack, goForward}) {
+export default function AddressBar({open, canGoForward, canGoBack, address, onEnter, onChange, goBack, goForward}) {
     const onAddressChange = (e) => {
         if (e.code === "Enter") {
             onEnter()
         }
     }
     return (
-        <div className="address-bar">
+        <div className="address-bar" style={{visibility: open?"visible":"hidden"}}>
             <Paper sx={{p: "2px 4px", display: "flex", alignItems: "center"}}>
                 <IconButton disabled={!canGoBack} onClick={goBack} type="button" sx={{p: "10px"}}><ArrowBackIosNewIcon/></IconButton>
                 <IconButton disabled={!canGoForward} onClick={goForward} type="button" sx={{p: "10px"}}><ArrowForwardIosIcon/></IconButton>

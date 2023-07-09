@@ -21,7 +21,8 @@ window.main = (() => {
         deleteItem: async (index) => confirm("Delete?") && send("deleteItem", index),
         addItem: async (item) => send("addItem", item),
         editItem: async (item, index) => send("editItem", {item, index}),
-        getDataItems: (index) => send("getDataItems", index)
+        getDataItems: (index) => send("getDataItems", index),
+        onNavigate: (url) => send("onNavigate", url),
     }
 })();
 

@@ -6,12 +6,15 @@ const topleft = createRef();
 const widthheight = createRef();
 
 export default function BigBrowser({webview}) {
+    const [open, setOpen] = useState(false);
     const [address, setAddress] = useState("");
     const [canGoBack, setCanGoBack] = useState(false);
     const [canGoForward, setCanGoForward] = useState(false);
-    const addHTTP = (s) => s.toString().includes("http") ? s : `https://${s}`;
+
     const toBigWebviewContainer = () => {
         if (!webview) return;
+        console.log("toBigWebviewContainer");
+        setOpen(true);
 
         const computedStyle1 = window.getComputedStyle(topleft.current);
         const computedStyle2 = window.getComputedStyle(widthheight.current);
@@ -36,7 +39,7 @@ export default function BigBrowser({webview}) {
         webview.setAttribute("style", `position:absolute;left:${left};top:${top};width:${width};height:${height}`);
         webview.setAttribute("zoom", "1");
         webview.setZoomFactor(1);
-        setAddress(addHTTP(webview.src));
+        setAddress(webview.src);
         global.webview = webview;
     }
 
@@ -52,13 +55,14 @@ export default function BigBrowser({webview}) {
     return (
         <div className="big-browser">
             <AddressBar
+                open={open}
                 canGoForward={canGoForward}
                 canGoBack={canGoBack}
                 address={address}
-                onChange={(s) => setAddress(addHTTP(s))}
+                onChange={(address) => setAddress(address)}
                 goBack={() => global.webview.goBack()}
                 goForward={() => global.webview.goForward()}
-                onEnter={() => global.webview.src = address}
+                onEnter={async () => global.webview.src = await window.main.onNavigate(address)}
             />
             <div className="big-webview-container" ref={widthheight}>
                 <div className={"topleft"} ref={topleft}/>

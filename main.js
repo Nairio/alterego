@@ -124,6 +124,24 @@ ipcMain.on("editItem", async (event, {item, index}) => {
     event.reply("editItem-reply", "ok");
 });
 
+ipcMain.on("onNavigate", async (event, url) => {
+    const originRequest = url;
+
+    try {
+        new URL(url);
+    } catch (e) {
+        url = `https://${url}`
+    }
+
+    try {
+        await fetch(url)
+    } catch (e) {
+        url = `https://www.google.com/search?q=${encodeURIComponent(originRequest)}`
+    }
+
+    event.reply("onNavigate-reply", url);
+});
+
 
 const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, lat, lng}) => {
 
