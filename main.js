@@ -3,6 +3,8 @@ const path = require("path");
 const fs = require("fs");
 const {exec} = require('child_process');
 const robot = require("robotjs");
+const contextMenu = require("electron-context-menu");
+
 
 const loadIndex = {};
 const getDirName = (...items) => {
@@ -164,21 +166,39 @@ const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, pr
         });
     }
 
-    const menuItems = [
-        ["Reload", () => webViewContents.reload()],
-        ["WebView DevTools", () => webViewContents.openDevTools()],
-        ["Clear Cache", async () => {
-            if (await confirm(mainWindow, "Clear Cache")) {
-                await webViewContents.session.clearCache();
-                await webViewContents.session.clearHostResolverCache();
-                await webViewContents.session.clearAuthCache();
-                await webViewContents.session.clearStorageData();
-                await webViewContents.clearHistory();
-                await webViewContents.reload()
+    contextMenu({
+        window: webViewContents,
+        showInspectElement: true,
+        showCopyImage: true,
+        copy: true,
+        showLearnSpelling: true,
+        showCopyImageAddress: true,
+        showSaveImageAs: true,
+        showCopyVideoAddress: true,
+        showSaveVideo: true,
+        showSaveVideoAs: true,
+        showCopyLink: true,
+        append: () => [
+            {
+                label: 'Reload',
+                click: () => webViewContents.reload()
+            },
+            {
+                label: 'Clear Cache',
+                click: async () => {
+                    if (await confirm(mainWindow, "Clear Cache")) {
+                        await webViewContents.session.clearCache();
+                        await webViewContents.session.clearHostResolverCache();
+                        await webViewContents.session.clearAuthCache();
+                        await webViewContents.session.clearStorageData();
+                        await webViewContents.clearHistory();
+                        await webViewContents.reload()
+                    }
+                }
             }
-        }],
-    ];
-    webViewContents.addListener("context-menu", NMenu(mainWindow, menuItems).popup);
+        ],
+    });
+
     webViewContents.session.setProxy({proxyRules: proxy});
     webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
     webViewContents.debugger.attach();
@@ -231,7 +251,22 @@ const createWindow = () => {
         },
     });
 
-    const openCardToggle = (e)=>{
+    contextMenu({
+        window: mainWindow,
+        showInspectElement: true,
+        showCopyImage: true,
+        copy: true,
+        showLearnSpelling: true,
+        showCopyImageAddress: true,
+        showSaveImageAs: true,
+        showCopyVideoAddress: true,
+        showSaveVideo: true,
+        showSaveVideoAs: true,
+        showCopyLink: true,
+        showSaveLinkAs: true,
+    });
+
+    const openCardToggle = (e) => {
         settings.cardsOpen = !settings.cardsOpen;
         e.menu.items.map(m => m.visible = !m.visible);
         mainWindow.webContents.send("onCardToggle", settings.cardsOpen);
@@ -245,6 +280,31 @@ const createWindow = () => {
         {
             label: 'File',
             submenu: [
+                {
+                    label: 'DevTools',
+                    submenu: [
+                        {
+                            label: 'Open DevTools',
+                            accelerator: 'CmdOrCtrl+Shift+J',
+                            click: () => mainWindow.webContents.openDevTools()
+                        },
+                        {
+                            label: 'Open DevTools',
+                            accelerator: 'CmdOrCtrl+Option+I',
+                            click: () => mainWindow.webContents.openDevTools()
+                        }
+                        ]
+                },
+                {
+                    label: 'Reload',
+                    submenu: [
+                        {
+                            label: 'Reload',
+                            accelerator: 'CmdOrCtrl+R',
+                            click: () => mainWindow.reload()
+                        }
+                    ]
+                },
                 {
                     label: 'Open',
                     click: () => {

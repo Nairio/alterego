@@ -30,6 +30,7 @@ window.main = (() => {
     }
 })();
 
+
 ipcRenderer.on("leftTop", (event) => {
     const topleft = document.querySelector(".topleft");
     const x = window.outerWidth - window.innerWidth + topleft.offsetLeft;
