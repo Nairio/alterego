@@ -103,7 +103,8 @@ const confirm = (mainWindow, text) => {
         });
     })
 }
-
+const settingsFile = getFileName("{}", "settings", "main.json");
+const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
 ipcMain.on("getDataItems", (event, index) => {
     event.reply("getDataItems-reply", NdataItems.getDataItems(index));
@@ -230,6 +231,80 @@ const createWindow = () => {
         },
     });
 
+    const openCardToggle = (e)=>{
+        settings.cardsOpen = !settings.cardsOpen;
+        e.menu.items.map(m => m.visible = !m.visible);
+        mainWindow.webContents.send("onCardToggle", settings.cardsOpen);
+        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
+    }
+
+    const template = [
+        {
+            label: app.getName(),
+        },
+        {
+            label: 'File',
+            submenu: [
+                {
+                    label: 'Open',
+                    click: () => {
+                        // Действия при выборе "Open"
+                    }
+                },
+                {
+                    label: 'Save',
+                    click: () => {
+                        // Действия при выборе "Save"
+                    }
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: 'Exit',
+                    click: () => {
+                        app.quit();
+                    }
+                }
+            ]
+        },
+        {
+            label: 'Edit',
+            submenu: [
+                {
+                    label: 'Cut',
+                    role: 'cut'
+                },
+                {
+                    label: 'Copy',
+                    role: 'copy'
+                },
+                {
+                    label: 'Paste',
+                    role: 'paste'
+                }
+            ]
+        },
+        {
+            label: 'Cards',
+            submenu: [
+                {
+                    label: 'Open',
+                    visible: !settings.cardsOpen,
+                    click: openCardToggle
+                },
+                {
+                    label: 'Close',
+                    visible: settings.cardsOpen,
+                    click: openCardToggle
+                }
+            ]
+        }
+    ];
+
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+
+
     mainWindow.on("close", app.quit);
 
     const menu = NMenu(mainWindow, [["App DevTools", () => mainWindow.webContents.openDevTools()]]);
@@ -242,6 +317,9 @@ const createWindow = () => {
         }
     });
 
+    ipcMain.on("getCardOpen", () => {
+        mainWindow.webContents.send("getCardOpen-reply", settings.cardsOpen);
+    });
     ipcMain.on("robotClick", (event, element) => {
         mainWindow.webContents.send("leftTop");
         ipcMain.on("leftTop-reply", (e, page) => {

@@ -109,7 +109,7 @@ const InputToggle = ({field, item, onChange, onEnter}) => {
 
 
 export default function ModalDialog({item: defItem, index, onEnter, open, onClose}) {
-    if (!defItem) return;
+    defItem = defItem || {};
     const [dataItems, setDataItems] = useState([]);
     const [item, setItem] = useState({...defItem});
 

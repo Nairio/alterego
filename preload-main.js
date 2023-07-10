@@ -25,6 +25,8 @@ window.main = (() => {
         onNavigate: (url) => send("onNavigate", url),
         openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),
         openDownloadDirectory: () => send("openDownloadDirectory"),
+        onCardToggle: (func) => ipcRenderer.on("onCardToggle", (e, d) => func(d)),
+        getCardOpen: async () => await send("getCardOpen"),
     }
 })();
 
