@@ -123,7 +123,6 @@ ipcMain.on("editItem", async (event, {item, index}) => {
     await NData.editItem({item, index});
     event.reply("editItem-reply", "ok");
 });
-
 ipcMain.on("onNavigate", async (event, url) => {
     const originRequest = url;
 
@@ -141,9 +140,28 @@ ipcMain.on("onNavigate", async (event, url) => {
 
     event.reply("onNavigate-reply", url);
 });
+ipcMain.on("openScriptFile", (event, scriptfile) => {
+    const fileName = getFileName("", "scripts", scriptfile);
+    shellExec(fileName)
+});
+ipcMain.on("openDownloadDirectory", () => {
+    shellExec(getDirName("downloadDirectory"))
+});
 
+const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, coords}) => {
 
-const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, lat, lng}) => {
+    if (scriptfile) {
+        const fileName = getFileName("", "scripts", scriptfile);
+
+        webViewContents.addListener("did-finish-load", () => {
+            if (webViewContents.getURL() === "about:blank") return;
+
+            loadIndex[index] = loadIndex[index] || 0;
+            loadIndex[index]++;
+            const script = fs.readFileSync(fileName, "utf8");
+            script && webViewContents.executeJavaScript(script);
+        });
+    }
 
     const menuItems = [
         ["Reload", () => webViewContents.reload()],
@@ -159,21 +177,6 @@ const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, pr
             }
         }],
     ];
-
-    if (scriptfile) {
-        const fileName = getFileName("", "scripts", scriptfile);
-        menuItems.push(["Open Script File", () => shellExec(fileName)]);
-        menuItems.push(["Open Download Directory", () => shellExec(getDirName("downloadDirectory"))]);
-        webViewContents.addListener("did-finish-load", () => {
-            if (webViewContents.getURL() === "about:blank") return;
-
-            loadIndex[index] = loadIndex[index] || 0;
-            loadIndex[index]++;
-            const script = fs.readFileSync(fileName, "utf8");
-            script && webViewContents.executeJavaScript(script);
-        });
-    }
-
     webViewContents.addListener("context-menu", NMenu(mainWindow, menuItems).popup);
     webViewContents.session.setProxy({proxyRules: proxy});
     webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
@@ -183,15 +186,14 @@ const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, pr
     (useragent && lang) && webViewContents.session.setUserAgent(useragent, lang);
 
     webViewContents.debugger.sendCommand("Emulation.setGeolocationOverride", {
-        latitude: +lat,
-        longitude: +lng,
+        latitude: +coords[0],
+        longitude: +coords[1],
         accuracy: 1
     });
 
     webViewContents.ipc.on("getLoadIndex", (event) => {
         event.reply("getLoadIndex-reply", loadIndex[index])
     });
-
     webViewContents.ipc.on("getDataValue", (event, {id}) => {
         const items = NData.getData();
         const item = items[index];

@@ -13,7 +13,6 @@ export default function BigBrowser({webview}) {
 
     const toBigWebviewContainer = () => {
         if (!webview) return;
-        console.log("toBigWebviewContainer");
         setOpen(true);
 
         const computedStyle1 = window.getComputedStyle(topleft.current);

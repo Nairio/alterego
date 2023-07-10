@@ -90,3 +90,8 @@
     bottom: 8px;
     left: 8px
 }
+
+[role="dialog"]{
+    width: 100%;
+    height: 100%;
+}

@@ -23,6 +23,8 @@ window.main = (() => {
         editItem: async (item, index) => send("editItem", {item, index}),
         getDataItems: (index) => send("getDataItems", index),
         onNavigate: (url) => send("onNavigate", url),
+        openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),
+        openDownloadDirectory: () => send("openDownloadDirectory"),
     }
 })();
 
