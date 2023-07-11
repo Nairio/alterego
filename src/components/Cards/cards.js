@@ -1,21 +1,27 @@
-import Card from "./card";
 import Webview from "./webview";
-import React, {createRef, useEffect, useState} from "react";
+import React from "react";
+import {useSelector} from "react-redux";
+import EditDialog from "./edit-dialog";
 
+const {deleteItem, editItem} = window.main;
 
-export default function Cards({onClick, data: {onData, deleteItem, editItem}}) {
-    const [data, setData] = useState([]);
-
-    useEffect(() => onData(setData), []);
+export default function Cards() {
+    const items = useSelector(state => state.items);
 
     return (
         <div className="cards">
-            {data.map((item, i) => {
-                const WVRef = createRef();
+            {items.map((item, index) => {
                 return (
-                    <Card WVRef={WVRef} key={i} index={i} item={item} editItem={editItem} deleteItem={deleteItem}>
-                        <Webview WVRef={WVRef} item={item} onclick={onClick} first={i===0}/>
-                    </Card>
+                    <div className={"card"} key={index}>
+                        <Webview index={index} item={item}/>
+                        <div className={"footer"}>
+                            <EditDialog index={index} item={item} deleteItem={deleteItem} editItem={editItem}/>
+                            <div>
+                                <div>{item.url}</div>
+                                <div>{item.description}</div>
+                            </div>
+                        </div>
+                    </div>
                 )
             })}
         </div>

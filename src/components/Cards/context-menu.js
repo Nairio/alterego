@@ -4,9 +4,10 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {Devices} from "@mui/icons-material";
+import {mainState} from "../../vars";
 
-
-export default function ContextMenu({WVRef, editItem, deleteItem, index}) {
+export default function ContextMenu({editItem, deleteItem, index}) {
+    const webview = mainState.webViews[index];
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -16,7 +17,7 @@ export default function ContextMenu({WVRef, editItem, deleteItem, index}) {
         setAnchorEl(null);
     };
     const openDevTools = ()=>{
-        WVRef.current.openDevTools();
+        webview.openDevTools();
         handleClose()
     }
 

@@ -1,30 +1,35 @@
 import "../../App.css";
-import React, {useEffect, useState} from "react";
+import React, {createRef, useEffect, useState} from "react";
+import {mainState} from "../../vars";
+import {useDispatch} from "react-redux";
+import {actions} from "../../redux/rtk";
 
 
-export default function Webview({WVRef, item, onclick, first}) {
-    const [src, setSRC] = useState(item.autostart ? item.url : "about:blank");
+export default function Webview({index, item}) {
+    const WVRef = createRef();
+    const dispatch = useDispatch();
+    const [src, setSRC] = useState(item.autostart || item.selected ? item.url : "about:blank");
+
     useEffect(() => {
         const webview = WVRef.current;
-        webview.addEventListener("dom-ready", () => webview.setZoomFactor(+webview.getAttribute("zoom")));
-        first && item.autostart && onClickHandler();
+
+        if (mainState.webViews.includes(webview)) return;
+
+        mainState.webViews.push(webview);
+        webview.addEventListener("dom-ready", () => {
+            webview.setAttribute("ready", "true");
+            webview.setZoomFactor(+webview.getAttribute("zoom"))
+        });
+        item.selected && onClickHandler();
+
     }, []);
 
     const onClickHandler = () => {
-        const webview = WVRef.current;
-
-        if (src !== "about:blank") return onclick(webview);
-
-        const onReady = () => {
-            webview.removeEventListener("dom-ready", onReady);
-            onclick(webview)
-        }
+        dispatch(actions.webViewIndex.set(index));
         setSRC(item.url);
-        webview.addEventListener("dom-ready", onReady);
     }
 
-    const WP = (o) => Object.entries(o).map(([k, v])=>`${k}=${v}`).join(", ");
-
+    const WP = (o) => Object.entries(o).map(([k, v]) => `${k}=${v}`).join(", ");
 
     return (
         <>
@@ -32,9 +37,9 @@ export default function Webview({WVRef, item, onclick, first}) {
                 <webview
                     webpreferences={WP({
                         //nodeIntegration: true,
-                        contextIsolation: false,
-                        allowRunningInsecureContent: true,
-                        webSecurity: false
+                        //contextIsolation: false,
+                        //allowRunningInsecureContent: true,
+                        //webSecurity: false
                     })}
                     allowpopups="true"
                     className="webview"

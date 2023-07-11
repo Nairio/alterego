@@ -1,5 +1,6 @@
 const {ipcRenderer} = require("electron");
 
+
 ipcRenderer.setMaxListeners(1000);
 
 const send = (msg, data) => {
@@ -25,8 +26,14 @@ window.main = (() => {
         onNavigate: (url) => send("onNavigate", url),
         openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),
         openDownloadDirectory: () => send("openDownloadDirectory"),
-        onCardToggle: (func) => ipcRenderer.on("onCardToggle", (e, d) => func(d)),
-        getCardOpen: async () => await send("getCardOpen"),
+        onSettings: (func) => ipcRenderer.on("onSettings", (e, d) => func(d)),
+        getSettings: (func) => {
+            ipcRenderer.send("getSettings");
+            ipcRenderer.on("getSettings-reply", (event, data) => func(data));
+        },
+        setWebViewIndex: (index) =>{
+            ipcRenderer.send("setWebViewIndex", index);
+        }
     }
 })();
 
@@ -40,7 +47,6 @@ ipcRenderer.on("leftTop", (event) => {
 ipcRenderer.on("confirm", (event, text) => {
     event.sender.send("confirm-reply", window.confirm(text))
 });
-
 
 
 

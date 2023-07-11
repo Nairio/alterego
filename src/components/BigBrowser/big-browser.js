@@ -1,67 +1,75 @@
 import AddressBar from "./address-bar";
 import React, {createRef, useEffect, useState} from "react";
+import {mainState} from "../../vars";
+import {useSelector} from "react-redux";
 
-const global = {};
 const topleft = createRef();
 const widthheight = createRef();
 
-export default function BigBrowser({webview}) {
-    const [open, setOpen] = useState(false);
+export default function BigBrowser() {
+    const {webViewIndex} = useSelector(state => state);
+    const webview = mainState.webViews[webViewIndex];
+
+    const [showAddressBar, setShowAddressBar] = useState(false);
     const [address, setAddress] = useState("");
     const [canGoBack, setCanGoBack] = useState(false);
     const [canGoForward, setCanGoForward] = useState(false);
 
-    const toBigWebviewContainer = () => {
-        if (!webview) return;
-        setOpen(true);
-
+    const getPosition = (topleft, widthheight) => {
         const computedStyle1 = window.getComputedStyle(topleft.current);
         const computedStyle2 = window.getComputedStyle(widthheight.current);
         const top = computedStyle1.getPropertyValue("top");
         const left = computedStyle1.getPropertyValue("left");
         const width = computedStyle2.getPropertyValue("width");
         const height = computedStyle2.getPropertyValue("height");
-
-        if (global.webview) {
-            global.webview.setAttribute("zoom", "0.1");
-            global.webview.setZoomFactor(0.1);
-            global.webview.removeAttribute("style");
-            global.webview.removeEventListener("did-navigate", global.didNavigate);
+        return {top, left, width, height}
+    }
+    const replaceWebview = (webview, didNavigate) => {
+        const {top, left, width, height} = getPosition(topleft, widthheight);
+        if (mainState.webview) {
+            mainState.webview.setAttribute("zoom", "0.1");
+            mainState.webview.setZoomFactor(0.1);
+            mainState.webview.removeAttribute("style");
+            mainState.webview.removeEventListener("did-navigate", mainState.didNavigate);
         }
+        mainState.webview = webview;
+        mainState.didNavigate = didNavigate;
+        mainState.webview.addEventListener("did-navigate", didNavigate);
+        mainState.webview.setAttribute("style", `position:absolute;left:${left};top:${top};width:${width};height:${height}`);
+        mainState.webview.setAttribute("zoom", "1");
+        mainState.webview.getAttribute("ready") && mainState.webview.setZoomFactor(1);
+    }
 
-        global.didNavigate = (event) => {
+    const toBigWebviewContainer = () => {
+        if (!webview) return;
+        setShowAddressBar(true);
+
+        replaceWebview(webview, (event) => {
             setAddress(event.url);
             setCanGoBack(webview.canGoBack());
             setCanGoForward(webview.canGoForward())
-        };
-        webview.addEventListener("did-navigate", global.didNavigate);
-        webview.setAttribute("style", `position:absolute;left:${left};top:${top};width:${width};height:${height}`);
-        webview.setAttribute("zoom", "1");
-        webview.setZoomFactor(1);
+        });
         setAddress(webview.src);
-        global.webview = webview;
     }
 
     useEffect(() => {
         window.addEventListener("resize", toBigWebviewContainer);
         toBigWebviewContainer();
-        return () => {
-            window.removeEventListener("resize", toBigWebviewContainer);
-        };
+        return () => {window.removeEventListener("resize", toBigWebviewContainer)};
     }, [webview]);
 
 
     return (
         <div className="big-browser">
             <AddressBar
-                open={open}
+                open={showAddressBar}
                 canGoForward={canGoForward}
                 canGoBack={canGoBack}
                 address={address}
                 onChange={(address) => setAddress(address)}
-                goBack={() => global.webview.goBack()}
-                goForward={() => global.webview.goForward()}
-                onEnter={async () => global.webview.src = await window.main.onNavigate(address)}
+                goBack={() => webview.goBack()}
+                goForward={() => webview.goForward()}
+                onEnter={async () => webview.src = await window.main.onNavigate(address)}
             />
             <div className="big-webview-container" ref={widthheight}>
                 <div className={"topleft"} ref={topleft}/>

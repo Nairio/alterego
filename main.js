@@ -112,7 +112,7 @@ ipcMain.on("getDataItems", (event, index) => {
     event.reply("getDataItems-reply", NdataItems.getDataItems(index));
 });
 ipcMain.on("getData", (event) => {
-    NData.setonupdate((data) => event.reply("getData-reply", data));
+    NData.setonupdate((data) => event.reply("getData-reply", {items: data, settings}));
 });
 ipcMain.on("addItem", async (event, item) => {
     await NData.addItem(item);
@@ -269,7 +269,7 @@ const createWindow = () => {
     const openCardToggle = (e) => {
         settings.cardsOpen = !settings.cardsOpen;
         e.menu.items.map(m => m.visible = !m.visible);
-        mainWindow.webContents.send("onCardToggle", settings.cardsOpen);
+        mainWindow.webContents.send("onSettings", settings);
         fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
     }
 
@@ -377,9 +377,6 @@ const createWindow = () => {
         }
     });
 
-    ipcMain.on("getCardOpen", () => {
-        mainWindow.webContents.send("getCardOpen-reply", settings.cardsOpen);
-    });
     ipcMain.on("robotClick", (event, element) => {
         mainWindow.webContents.send("leftTop");
         ipcMain.on("leftTop-reply", (e, page) => {
@@ -405,6 +402,18 @@ const createWindow = () => {
         robot.typeString(text);
         event.reply("robotTypeText-reply");
     });
+
+    ipcMain.on("getSettings", (event) => {
+        event.reply("getSettings-reply", settings);
+    });
+
+    ipcMain.on("setWebViewIndex", (event, index) => {
+        settings.webViewIndex = index;
+        mainWindow.webContents.send("onSettings", settings);
+        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
+    });
+
+
 
     app.isPackaged
         ? mainWindow.loadFile(path.join(__dirname, "build", "index.html"))
