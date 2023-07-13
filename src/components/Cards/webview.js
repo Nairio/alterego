@@ -37,9 +37,9 @@ export default function Webview({index, item}) {
                 <webview
                     webpreferences={WP({
                         //nodeIntegration: true,
-                        //contextIsolation: false,
-                        //allowRunningInsecureContent: true,
-                        //webSecurity: false
+                        contextIsolation: false,
+                        allowRunningInsecureContent: true,
+                        webSecurity: false
                     })}
                     allowpopups="true"
                     className="webview"

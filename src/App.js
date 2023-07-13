@@ -12,9 +12,23 @@ export default function App() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        window.main.onSettings(s => dispatch(actions.settings.set(s)));
+        window.main.onSettings(s => {
+            dispatch(actions.settings.set(s));
+        });
         window.main.onData(({items, settings}) => {
-            items[settings.webViewIndex].selected = true;
+            items.map(item => item.sort = (+item.sort || ""));
+
+            items = items.sort((a, b) => {
+                if (a.sort === "" && b.sort === "") return 0;
+                if (a.sort === "" && b.sort !== "") return 1;
+                if (a.sort !== "" && b.sort === "") return -1;
+                if (a.sort > b.sort) return 1;
+                if (b.sort > a.sort) return -1;
+                return 0
+            });
+            console.log({items});
+            items.map(item => item.selected = false);
+            items[settings.webViewIndex] && (items[settings.webViewIndex].selected = true);
             dispatch(actions.settings.set(settings));
             dispatch(actions.items.set(items));
         });

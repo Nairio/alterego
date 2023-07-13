@@ -12,6 +12,7 @@ import {
 import {onMapData, openMap} from "./map/map";
 
 const fields = [
+    {id: "sort", title: "Sort", type: "text"},
     {id: "autostart", title: "Auto Start", type: "checkbox"},
     {id: "description", title: "Description", type: "text"},
     {id: "zone", title: "Zone", type: "text"},
