@@ -93,8 +93,8 @@
 
 .hidden .webview {
     visibility: visible;
-    width: 100%!important;
-    left: 0!important;
+    width: 100% !important;
+    left: 0 !important;
 }
 
 .hidden .cards, .hidden .add-dialog {
@@ -107,3 +107,12 @@
     top: 59px;
     z-index: 100;
 }
+
+.sortable-background, .sortable-background * {
+    background: #00000001 !important;
+}
+
+.sortable-drag {
+    opacity: 0;
+}
+

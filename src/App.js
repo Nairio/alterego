@@ -6,6 +6,7 @@ import BigBrowser from "./components/BigBrowser/big-browser";
 import {useDispatch, useSelector} from "react-redux";
 import {actions} from "./redux/rtk";
 
+
 export default function App() {
     const cardsOpen = useSelector(state => state.settings.cardsOpen);
     const dispatch = useDispatch();
@@ -20,8 +21,10 @@ export default function App() {
             dispatch(actions.settings.set(settings));
             dispatch(actions.items.set(items));
         });
-    }, [])
+    }, []);
 
+
+    console.log("render");
     return (
         <>
             <div className={cardsOpen ? "visible" : "hidden"}>

@@ -26,14 +26,21 @@
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.13.5",
     "@reduxjs/toolkit": "^1.9.5",
+    "array-move": "^4.0.0",
     "electron-context-menu": "^3.6.1",
     "electron-squirrel-startup": "^1.0.0",
+    "html5sortable": "^0.13.3",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-dnd": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-redux": "^8.1.1",
     "react-scripts": "5.0.1",
+    "react-sortable": "^2.0.0",
+    "react-sortablejs": "^6.1.4",
     "redux": "^4.2.1",
-    "robotjs": "^0.6.0"
+    "robotjs": "^0.6.0",
+    "sortablejs": "^1.15.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.2.1",
@@ -42,6 +49,7 @@
     "@electron-forge/maker-squirrel": "^6.2.1",
     "@electron-forge/maker-zip": "^6.2.1",
     "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
+    "@types/sortablejs": "^1.15.1",
     "electron": "^25.1.1"
   },
   "browserslist": {

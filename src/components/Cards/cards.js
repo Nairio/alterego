@@ -1,40 +1,42 @@
 import Webview from "./webview";
-import React from "react";
+import React, {useEffect, useRef} from "react";
 import {useSelector} from "react-redux";
 import EditDialog from "./edit-dialog";
+import Sortable from "sortablejs";
 
-const {deleteItem, editItem} = window.main;
+const {deleteItem, editItem, saveItems} = window.main;
+
+let NSort;
 
 export default function Cards() {
-    const items1 = useSelector(state => state.items);
+    const items = useSelector(state => state.items);
+    const listRef = useRef(null);
 
-    const items = [...items1].sort((a, b) => {
-        const s1 = +a.sort || "";
-        const s2 = +b.sort || "";
-        if (s1 === "" && s2 === "") return 0;
-        if (s1 === "" && s2 !== "") return 1;
-        if (s1 !== "" && s2 === "") return -1;
-        if (s1 > s2) return 1;
-        if (s2 > s1) return -1;
-        return 0
-    });
+    useEffect(() => {
+        NSort && NSort.destroy();
+        NSort = new Sortable(listRef.current, {
+            animation: 500,
+            ghostClass: "sortable-background",
+            dataIdAttr: "id",
+            dragClass: "sortable-drag",
+            onSort: () => saveItems(NSort.toArray().reduce((a, c) => ([...a, items.filter(i => i.id === c)[0]]), []))
+        });
+    }, [items]);
 
     return (
-        <div className="cards">
-            {items.map((item) => {
-                return (
-                    <div className={"card"} key={item.id}>
-                        <Webview item={item}/>
-                        <div className={"footer"}>
-                            <EditDialog item={item} deleteItem={deleteItem} editItem={editItem}/>
-                            <div>
-                                <div>{item.url}</div>
-                                <div>{item.description}</div>
-                            </div>
+        <div className="cards" ref={listRef}>
+            {items.map((item) => (
+                <div className={"card"} key={item.id} id={item.id}>
+                    <Webview item={item}/>
+                    <div className={"footer"}>
+                        <EditDialog item={item} deleteItem={deleteItem} editItem={editItem}/>
+                        <div>
+                            <div>{item.url}</div>
+                            <div>{item.description}</div>
                         </div>
                     </div>
-                )
-            })}
+                </div>
+            ))}
         </div>
     )
 }

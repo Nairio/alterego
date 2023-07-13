@@ -22,6 +22,7 @@ window.main = (() => {
         deleteItem: async (item) => confirm("Delete?") && send("deleteItem", item),
         addItem: async (item) => send("addItem", item),
         editItem: async (item) => send("editItem", {item}),
+        saveItems: async (items) => send("saveItems", items),
         getDataItems: (id) => send("getDataItems", id),
         onNavigate: (url) => send("onNavigate", url),
         openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),

@@ -92,7 +92,11 @@ const NData = (() => {
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
-    return {setonupdate, addItem, deleteItem, editItem, getData: () => data}
+    const saveItems = async (items) => {
+        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
+    }
+
+    return {setonupdate, addItem, deleteItem, editItem,saveItems, getData: () => data}
 })()
 const NdataItems = (() => {
     const dataItems = {};
@@ -129,6 +133,11 @@ ipcMain.on("editItem", async (event, {item}) => {
     await NData.editItem({item});
     event.reply("editItem-reply", "ok");
 });
+ipcMain.on("saveItems", async (event, items) => {
+    await NData.saveItems(items);
+    event.reply("saveItems-reply", "ok");
+});
+
 ipcMain.on("onNavigate", async (event, url) => {
     const originRequest = url;
 
