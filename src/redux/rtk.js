@@ -3,11 +3,11 @@ import {configureStore, createSlice} from '@reduxjs/toolkit';
 
 const slices = [
     {
-        name: "webViewIndex",
-        initialState: -1,
+        name: "selectedItemId",
+        initialState: "",
         reducers: {
             set: (state, action) => {
-                window.main.setWebViewIndex(action.payload);
+                window.main.setSelectedItemId(action.payload);
                 return action.payload
             },
         }

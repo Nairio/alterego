@@ -80,12 +80,14 @@ const NData = (() => {
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
-    const deleteItem = async (i) => {
-        data.splice(i, 1);
+    const deleteItem = async (item) => {
+        const index = data.findIndex(({id}) => id === item.id);
+        data.splice(index, 1);
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
-    const editItem = async ({item, index}) => {
+    const editItem = async ({item}) => {
+        const index = data.findIndex(({id}) => id === item.id);
         data[index] = item;
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
@@ -94,8 +96,8 @@ const NData = (() => {
 })()
 const NdataItems = (() => {
     const dataItems = {};
-    const setDataItems = (items, index) => dataItems[index] = items;
-    return {setDataItems, getDataItems: (index) => dataItems[index]}
+    const setDataItems = (items, id) => dataItems[id] = items;
+    return {setDataItems, getDataItems: (id) => dataItems[id]}
 })()
 const confirm = (mainWindow, text) => {
     return new Promise(resolve => {
@@ -108,22 +110,23 @@ const confirm = (mainWindow, text) => {
 const settingsFile = getFileName("{}", "settings", "main.json");
 const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
-ipcMain.on("getDataItems", (event, index) => {
-    event.reply("getDataItems-reply", NdataItems.getDataItems(index));
+ipcMain.on("getDataItems", (event, id) => {
+    event.reply("getDataItems-reply", NdataItems.getDataItems(id));
 });
 ipcMain.on("getData", (event) => {
     NData.setonupdate((data) => event.reply("getData-reply", {items: data, settings}));
 });
 ipcMain.on("addItem", async (event, item) => {
+    item.id = Date.now().toString();
     await NData.addItem(item);
     event.reply("addItem-reply", "ok");
 });
-ipcMain.on("deleteItem", async (event, index) => {
-    await NData.deleteItem(index);
+ipcMain.on("deleteItem", async (event, item) => {
+    await NData.deleteItem(item);
     event.reply("deleteItem-reply", "ok");
 });
-ipcMain.on("editItem", async (event, {item, index}) => {
-    await NData.editItem({item, index});
+ipcMain.on("editItem", async (event, {item}) => {
+    await NData.editItem({item});
     event.reply("editItem-reply", "ok");
 });
 ipcMain.on("onNavigate", async (event, url) => {
@@ -407,8 +410,8 @@ const createWindow = () => {
         event.reply("getSettings-reply", settings);
     });
 
-    ipcMain.on("setWebViewIndex", (event, index) => {
-        settings.webViewIndex = index;
+    ipcMain.on("setSelectedItemId", (event, id) => {
+        settings.selectedItemId = id;
         mainWindow.webContents.send("onSettings", settings);
         fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
     });

@@ -7,8 +7,8 @@ const topleft = createRef();
 const widthheight = createRef();
 
 export default function BigBrowser() {
-    const {webViewIndex} = useSelector(state => state);
-    const webview = mainState.webViews[webViewIndex];
+    const {selectedItemId} = useSelector(state => state);
+    const webview = mainState.webViews[selectedItemId];
 
     const [showAddressBar, setShowAddressBar] = useState(false);
     const [address, setAddress] = useState("");

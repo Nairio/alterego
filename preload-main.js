@@ -19,10 +19,10 @@ window.main = (() => {
             ipcRenderer.on("getData-reply", (event, data) => func(data));
             onDataUsed = true;
         },
-        deleteItem: async (index) => confirm("Delete?") && send("deleteItem", index),
+        deleteItem: async (item) => confirm("Delete?") && send("deleteItem", item),
         addItem: async (item) => send("addItem", item),
-        editItem: async (item, index) => send("editItem", {item, index}),
-        getDataItems: (index) => send("getDataItems", index),
+        editItem: async (item) => send("editItem", {item}),
+        getDataItems: (id) => send("getDataItems", id),
         onNavigate: (url) => send("onNavigate", url),
         openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),
         openDownloadDirectory: () => send("openDownloadDirectory"),
@@ -31,8 +31,8 @@ window.main = (() => {
             ipcRenderer.send("getSettings");
             ipcRenderer.on("getSettings-reply", (event, data) => func(data));
         },
-        setWebViewIndex: (index) =>{
-            ipcRenderer.send("setWebViewIndex", index);
+        setSelectedItemId: (id) =>{
+            ipcRenderer.send("setSelectedItemId", id);
         }
     }
 })();

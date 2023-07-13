@@ -6,28 +6,21 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {Devices} from "@mui/icons-material";
 import {mainState} from "../../vars";
 
-export default function ContextMenu({editItem, deleteItem, index}) {
-    const webview = mainState.webViews[index];
+export default function ContextMenu({editItem, deleteItem, item}) {
+    const webview = mainState.webViews[item.id];
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const openDevTools = ()=>{
-        webview.openDevTools();
-        handleClose()
-    }
+    const handleClick = (event) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+    const openDevTools = () => {webview.openDevTools(); handleClose()}
 
     return (
         <>
             <IconButton aria-label="delete" size="small" onClick={handleClick}><MoreVertIcon fontSize="inherit"/></IconButton>
             <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
                 <MenuItem onClick={openDevTools}><IconButton><Devices sx={{fontSize: "small"}}/></IconButton>Dev Tools</MenuItem>
-                <MenuItem onClick={() => {editItem(index);handleClose()}}><IconButton><EditIcon sx={{fontSize: "small"}}/></IconButton>Edit</MenuItem>
-                <MenuItem onClick={() => {deleteItem(index);handleClose()}}><IconButton><DeleteIcon sx={{fontSize: "small"}}/></IconButton>Delete</MenuItem>
+                <MenuItem onClick={() => {editItem();handleClose()}}><IconButton><EditIcon sx={{fontSize: "small"}}/></IconButton>Edit</MenuItem>
+                <MenuItem onClick={() => {deleteItem(item);handleClose()}}><IconButton><DeleteIcon sx={{fontSize: "small"}}/></IconButton>Delete</MenuItem>
             </Menu>
         </>
     );

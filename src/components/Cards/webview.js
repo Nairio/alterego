@@ -5,7 +5,7 @@ import {useDispatch} from "react-redux";
 import {actions} from "../../redux/rtk";
 
 
-export default function Webview({index, item}) {
+export default function Webview({item}) {
     const WVRef = createRef();
     const dispatch = useDispatch();
     const [src, setSRC] = useState(item.autostart || item.selected ? item.url : "about:blank");
@@ -13,9 +13,9 @@ export default function Webview({index, item}) {
     useEffect(() => {
         const webview = WVRef.current;
 
-        if (mainState.webViews.includes(webview)) return;
+        if (mainState.webViews[item.id]) return;
 
-        mainState.webViews.push(webview);
+        mainState.webViews[item.id] = webview;
         webview.addEventListener("dom-ready", () => {
             webview.setAttribute("ready", "true");
             webview.setZoomFactor(+webview.getAttribute("zoom"))
@@ -25,7 +25,7 @@ export default function Webview({index, item}) {
     }, []);
 
     const onClickHandler = () => {
-        dispatch(actions.webViewIndex.set(index));
+        dispatch(actions.selectedItemId.set(item.id));
         setSRC(item.url);
     }
 
