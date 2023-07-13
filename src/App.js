@@ -12,19 +12,14 @@ export default function App() {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        window.main.onSettings(s => {
-            dispatch(actions.settings.set(s));
-        });
         window.main.onData(({items, settings}) => {
-            items.map(item => item.selected = false);
-            items[settings.selectedItemId] && (items.filter(item=>item.id === settings.selectedItemId)[0].selected = true);
+            items.map(item => item.selected = item.id === settings.selectedItemId);
             dispatch(actions.settings.set(settings));
             dispatch(actions.items.set(items));
+            console.log(items)
         });
     }, []);
 
-
-    console.log("render");
     return (
         <>
             <div className={cardsOpen ? "visible" : "hidden"}>

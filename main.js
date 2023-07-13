@@ -281,7 +281,7 @@ const createWindow = () => {
     const openCardToggle = (e) => {
         settings.cardsOpen = !settings.cardsOpen;
         e.menu.items.map(m => m.visible = !m.visible);
-        mainWindow.webContents.send("onSettings", settings);
+        NData.setonupdate((data) => mainWindow.webContents.send("getData-reply", {items: data, settings}));
         fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
     }
 
@@ -415,14 +415,10 @@ const createWindow = () => {
         event.reply("robotTypeText-reply");
     });
 
-    ipcMain.on("getSettings", (event) => {
-        event.reply("getSettings-reply", settings);
-    });
-
     ipcMain.on("setSelectedItemId", (event, id) => {
         settings.selectedItemId = id;
-        mainWindow.webContents.send("onSettings", settings);
         fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
+        NData.setonupdate((data) => event.reply("getData-reply", {items: data, settings}));
     });
 
 

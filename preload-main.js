@@ -27,14 +27,7 @@ window.main = (() => {
         onNavigate: (url) => send("onNavigate", url),
         openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),
         openDownloadDirectory: () => send("openDownloadDirectory"),
-        onSettings: (func) => ipcRenderer.on("onSettings", (e, d) => func(d)),
-        getSettings: (func) => {
-            ipcRenderer.send("getSettings");
-            ipcRenderer.on("getSettings-reply", (event, data) => func(data));
-        },
-        setSelectedItemId: (id) =>{
-            ipcRenderer.send("setSelectedItemId", id);
-        }
+        setSelectedItemId: (id) => ipcRenderer.send("setSelectedItemId", id)
     }
 })();
 
