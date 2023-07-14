@@ -51,15 +51,15 @@ const NMenu = (win, items) => {
         popup: (e, {x, y}) => contextMenu.popup(win, x, y)
     }
 };
-const NItems = (() => {
-    const fileName = getFileName("[]", "items.json");
+const NData = (() => {
+    const fileName = getFileName("{groups:[], items: [], settings: {}}", "data.json");
 
     let onupdate;
-    let items;
+    let data;
 
     const fileUpdated = () => {
-        items = JSON.parse(fs.readFileSync(fileName, {encoding: "utf8"}));
-        onupdate(items);
+        data = JSON.parse(fs.readFileSync(fileName, {encoding: "utf8"}));
+        onupdate && onupdate(data);
     }
 
     let setonupdate = (func) => {
@@ -74,26 +74,73 @@ const NItems = (() => {
         process.exit()
     });
 
-    const addItem = async (item) => {
-        items.push(item);
-        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
+    const addEditItem = async (item) => {
+        const index = data.items.findIndex(({id}) => id === item.id);
+        if (index > -1) {
+            data.items[index] = item;
+        } else {
+            item.id = Date.now().toString();
+            data.items.push(item);
+        }
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
     const deleteItem = async (item) => {
-        const index = items.findIndex(({id}) => id === item.id);
-        items.splice(index, 1);
-        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
+        const index = data.items.findIndex(({id}) => id === item.id);
+        data.items.splice(index, 1);
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
-    const editItem = async ({item}) => {
-        const index = items.findIndex(({id}) => id === item.id);
-        items[index] = item;
-        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
-    }
-    const saveItems = async (items) => {
-        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
-    }
-    const getItems = () => items
 
-    return {setonupdate, addItem, deleteItem, editItem, saveItems, getItems}
+    const saveItems = async (items) => {
+        data.items = items;
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
+    const getData = () => data
+
+    const cardsOpenToggle = () => {
+        data.settings.cardsOpen = !data.settings.cardsOpen;
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
+    const setSelectedItemId = (id) => {
+        data.settings.selectedItemId = id;
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
+
+    const addEditGroup = async (group) => {
+        const index = data.groups.findIndex(({id}) => id === group.id);
+        if (index > -1) {
+            data.groups[index] = group;
+        } else {
+            group.id = Date.now().toString();
+            data.groups.push(group);
+        }
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
+    const deleteGroup = async (group) => {
+        const index = data.groups.findIndex(({id}) => id === group.id);
+        data.groups.splice(index, 1);
+
+        data.items.filter(item => item.groupid === group.id).forEach(item => {
+            const index = data.items.findIndex(({id}) => id === item.id);
+            data.items.splice(index, 1);
+        })
+
+
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
+
+
+    fileUpdated();
+    return {
+        addEditGroup,
+        deleteGroup,
+        setonupdate,
+        addEditItem,
+        deleteItem,
+        cardsOpenToggle,
+        setSelectedItemId,
+        saveItems,
+        getData
+    }
 })();
 const NFields = (() => {
     const fieldsData = {};
@@ -109,27 +156,31 @@ const confirm = (mainWindow, text) => {
         });
     })
 };
-const settingsFile = getFileName("{}", "settings", "main.json");
-const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
-ipcMain.on("getItems", (event) => {
-    NItems.setonupdate((items) => event.reply("getItems-reply", {items, settings}));
+ipcMain.on("getData", (event) => {
+    NData.setonupdate((data) => event.reply("getData-reply", data));
 });
-ipcMain.on("addItem", async (event, item) => {
-    item.id = Date.now().toString();
-    await NItems.addItem(item);
-    event.reply("addItem-reply", "ok");
+ipcMain.on("addEditItem", async (event, item) => {
+    await NData.addEditItem(item);
+    event.reply("addEditItem-reply", "ok");
 });
+ipcMain.on("addEditGroup", async (event, group) => {
+    await NData.addEditGroup(group);
+    event.reply("addEditGroup-reply", "ok");
+});
+
+
 ipcMain.on("deleteItem", async (event, item) => {
-    await NItems.deleteItem(item);
+    await NData.deleteItem(item);
     event.reply("deleteItem-reply", "ok");
 });
-ipcMain.on("editItem", async (event, {item}) => {
-    await NItems.editItem({item});
-    event.reply("editItem-reply", "ok");
+ipcMain.on("deleteGroup", async (event, group) => {
+    await NData.deleteGroup(group);
+    event.reply("deleteGroup-reply", "ok");
 });
+
 ipcMain.on("saveItems", async (event, items) => {
-    await NItems.saveItems(items);
+    await NData.saveItems(items);
     event.reply("saveItems-reply", "ok");
 });
 ipcMain.on("onNavigate", async (event, url) => {
@@ -160,18 +211,15 @@ ipcMain.on("getFields", (event, id) => {
     event.reply("getFields-reply", NFields.getFields(id))
 });
 
-const onWebContents = async (index, mainWindow, webViewContents, item) => {
-    const {id, scriptfile, proxy, lang, useragent, coords} = item;
-
-    console.log(item.url, scriptfile);
+const onWebContents = async (index, mainWindow, webViewContents, item, group) => {
+    const {proxy, lang, useragent, coords} = group;
+    const {id, scriptfile} = item;
 
     if (scriptfile) {
         const fileName = getFileName("", "scripts", scriptfile);
 
         webViewContents.addListener("did-finish-load", () => {
             if (webViewContents.getURL() === "about:blank") return;
-
-            console.log(item.url, webViewContents.getURL(), "did-finish-load");
 
             loadIndex[id] = loadIndex[id] || 0;
             loadIndex[id]++;
@@ -230,8 +278,8 @@ const onWebContents = async (index, mainWindow, webViewContents, item) => {
     webViewContents.ipc.on("getLoadIndex", (event) => {
         event.reply("getLoadIndex-reply", loadIndex[id])
     });
-    webViewContents.ipc.on("getItemsValue", (event, valueId) => {
-        event.reply("getItemsValue-reply", item[valueId])
+    webViewContents.ipc.on("getItem", (event) => {
+        event.reply("getItem-reply", item)
     });
     webViewContents.ipc.on("setFields", (event, fields) => {
         NFields.setFields(fields, id);
@@ -279,10 +327,8 @@ const createWindow = () => {
     });
 
     const openCardToggle = (e) => {
-        settings.cardsOpen = !settings.cardsOpen;
         e.menu.items.map(m => m.visible = !m.visible);
-        NItems.setonupdate((items) => mainWindow.webContents.send("getItems-reply", {items, settings}));
-        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
+        NData.cardsOpenToggle();
     }
 
     const template = [
@@ -362,12 +408,12 @@ const createWindow = () => {
             submenu: [
                 {
                     label: 'Open',
-                    visible: !settings.cardsOpen,
+                    visible: !NData.getData().settings.cardsOpen,
                     click: openCardToggle
                 },
                 {
                     label: 'Close',
-                    visible: settings.cardsOpen,
+                    visible: NData.getData().settings.cardsOpen,
                     click: openCardToggle
                 }
             ]
@@ -382,10 +428,10 @@ const createWindow = () => {
     const menu = NMenu(mainWindow, [["App DevTools", () => mainWindow.webContents.openDevTools()]]);
     mainWindow.webContents.on("context-menu", menu.popup);
     mainWindow.webContents.on("did-attach-webview", () => {
-        const items = NItems.getItems();
+        const {items, groups} = NData.getData();
         const allWebContents = webContents.getAllWebContents().filter(c => c.hostWebContents && c.hostWebContents.id === mainWindow.webContents.id).sort((a, b) => a.id - b.id)
         if (items.length === allWebContents.length) {
-            allWebContents.forEach((webViewContents, i) => onWebContents(i, mainWindow, webViewContents, items[i]))
+            allWebContents.forEach((webViewContents, i) => onWebContents(i, mainWindow, webViewContents, items[i], groups.filter(group => group.id === items[i].groupid)[0]))
         }
     });
 
@@ -416,9 +462,7 @@ const createWindow = () => {
     });
 
     ipcMain.on("setSelectedItemId", (event, id) => {
-        settings.selectedItemId = id;
-        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
-        NItems.setonupdate((items) => event.reply("getItems-reply", {items, settings}));
+        NData.setSelectedItemId(id)
     });
 
 

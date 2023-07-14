@@ -15,10 +15,10 @@ window.fileRead = (filename) => {
 window.setFields = (fields) => {
     ipcRenderer.send("setFields", fields);
 }
-window.getItemsValue = (id) => {
+window.getItem = () => {
     return new Promise((resolve => {
-        ipcRenderer.send("getItemsValue", id);
-        ipcRenderer.on("getItemsValue-reply", (event, data) => resolve(data));
+        ipcRenderer.send("getItem");
+        ipcRenderer.on("getItem-reply", (event, item) => resolve(item));
     }))
 }
 window.waitSelector = (selectors, speed = 1000) => {

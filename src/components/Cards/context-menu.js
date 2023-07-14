@@ -3,23 +3,37 @@ import {IconButton, Menu, MenuItem} from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {Devices} from "@mui/icons-material";
-import {mainState} from "../../vars";
+import {PlusOne} from "@mui/icons-material";
 
-export default function ContextMenu({editItem, deleteItem, item}) {
-    const webview = mainState.webViews[item.id];
+export function ContextMenuGroup({addItem, editGroup, deleteGroup, group}) {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
-    const openDevTools = () => {webview.openDevTools(); handleClose()}
+    const addItemhandle = () => {addItem({groupid: group.id}); handleClose()}
 
     return (
         <>
             <IconButton aria-label="delete" size="small" onClick={handleClick}><MoreVertIcon fontSize="inherit"/></IconButton>
             <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                <MenuItem onClick={openDevTools}><IconButton><Devices sx={{fontSize: "small"}}/></IconButton>Dev Tools</MenuItem>
-                <MenuItem onClick={() => {editItem();handleClose()}}><IconButton><EditIcon sx={{fontSize: "small"}}/></IconButton>Edit</MenuItem>
+                <MenuItem onClick={addItemhandle}><IconButton><PlusOne sx={{fontSize: "small"}}/></IconButton>Add Item</MenuItem>
+                <MenuItem onClick={() => {editGroup(group);handleClose()}}><IconButton><EditIcon sx={{fontSize: "small"}}/></IconButton>Edit</MenuItem>
+                <MenuItem onClick={() => {deleteGroup(group);handleClose()}}><IconButton><DeleteIcon sx={{fontSize: "small"}}/></IconButton>Delete</MenuItem>
+            </Menu>
+        </>
+    );
+}
+export function ContextMenuItem({editItem, deleteItem, item}) {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+
+    return (
+        <>
+            <IconButton aria-label="delete" size="small" onClick={handleClick}><MoreVertIcon fontSize="inherit"/></IconButton>
+            <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <MenuItem onClick={() => {editItem(item);handleClose()}}><IconButton><EditIcon sx={{fontSize: "small"}}/></IconButton>Edit</MenuItem>
                 <MenuItem onClick={() => {deleteItem(item);handleClose()}}><IconButton><DeleteIcon sx={{fontSize: "small"}}/></IconButton>Delete</MenuItem>
             </Menu>
         </>

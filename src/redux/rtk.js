@@ -13,6 +13,13 @@ const slices = [
         }
     },
     {
+        name: "groups",
+        initialState: [],
+        reducers: {
+            set: (state, action) => action.payload,
+        },
+    },
+    {
         name: "items",
         initialState: [],
         reducers: {
@@ -25,7 +32,25 @@ const slices = [
         reducers: {
             set: (state, action) => action.payload,
         },
+    },
+    {
+        name: "modalDialogItems",
+        initialState: false,
+        reducers: {
+            open: (state, action) => action.payload,
+            close: () => false,
+        },
+    },
+    {
+        name: "modalDialogGroups",
+        initialState: false,
+        reducers: {
+            open: (state, action) => action.payload,
+            close: () => false,
+        },
     }
+
+
 ].map(createSlice);
 
 export const actions = slices.reduce((a, c) => ({...a, [c.name]: c.actions}), {});

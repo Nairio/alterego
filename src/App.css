@@ -116,3 +116,10 @@
     opacity: 0;
 }
 
+.cards .group h1 {
+    margin-right: 8px;
+    //font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

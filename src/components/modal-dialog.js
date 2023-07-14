@@ -10,18 +10,24 @@ import {
     TextField
 } from "@mui/material";
 import {onMapData, openMap} from "./map/map";
+import {useDispatch, useSelector} from "react-redux";
+import {actions} from "../redux/rtk";
+
+const defGroupFields = [
+    {id: "description", title: "Description", type: "text"},
+    {id: "useragent", title: "UserAgent", type: "text"},
+    {id: "proxy", title: "Proxy", type: "text"},
+    {id: "lang", title: "Language", type: "text"},
+    {id: "coords", title: "Coords", type: "coords"}
+];
 
 const defFields = [
     {id: "autostart", title: "Auto Start", type: "checkbox"},
     {id: "description", title: "Description", type: "text"},
-    {id: "zone", title: "Zone", type: "text"},
     {id: "url", title: "URL", type: "text"},
-    {id: "useragent", title: "UserAgent", type: "text"},
-    {id: "proxy", title: "Proxy", type: "text"},
-    {id: "lang", title: "Language", type: "text"},
-    {id: "coords", title: "Coords", type: "coords"},
     {id: "scriptfile", title: "ScriptFile", type: "script"}
 ];
+
 
 const Input = ({field, value, onEnter, onChange, force}) => {
     return (
@@ -107,18 +113,63 @@ const InputToggle = ({field, item, onChange, onEnter}) => {
     return inputs[field.type]
 }
 
+export function ModalDialogGroup() {
+    const dispatch = useDispatch();
+    const defGroup = useSelector(state => state.modalDialogGroups);
+    const [group, setGroup] = useState({...defGroup});
 
-export default function ModalDialog({item: defItem, onEnter, open, onClose}) {
-    defItem = defItem || {};
+    const onClose = () => dispatch(actions.modalDialogGroups.close());
+
+    useEffect(() => {
+        setGroup({...defGroup});
+    }, [defGroup])
+
+    const onEnterHandle = () => {
+        window.main.addEditGroup(group);
+        onClose()
+    }
+
+    const onChangeHandle = (id, value) => {
+        group[id] = value;
+        setGroup(group);
+    }
+
+    return (
+        <Dialog open={!!defGroup} onClose={onClose}>
+            <DialogContent>
+                {defGroupFields.map((field, i) => (
+                    <InputToggle
+                        key={i}
+                        field={field}
+                        item={defGroup}
+                        onChange={onChangeHandle}
+                        onEnter={onEnterHandle}
+                    />
+                ))}
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose}>Cancel</Button>
+                <Button onClick={onEnterHandle}>Ok</Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+export function ModalDialogItems() {
+    const dispatch = useDispatch();
+    const defItem = useSelector(state => state.modalDialogItems);
     const [fields, setFields] = useState([]);
     const [item, setItem] = useState({...defItem});
 
+    const onClose = () => dispatch(actions.modalDialogItems.close());
+
     useEffect(() => {
-        open && window.main.getFields(item.id).then(fields => setFields(fields || []))
-    }, [open])
+        setItem({...defItem});
+        defItem && defItem.id && window.main.getFields(defItem.id).then(fields => setFields(fields || []))
+    }, [defItem])
 
     const onEnterHandle = () => {
-        onEnter(item);
+        window.main.addEditItem(item);
         onClose()
     }
 
@@ -128,7 +179,7 @@ export default function ModalDialog({item: defItem, onEnter, open, onClose}) {
     }
 
     return (
-        <Dialog open={open} onClose={onClose}>
+        <Dialog open={!!defItem} onClose={onClose}>
             <DialogContent>
                 {[...defFields, ...fields].map((field, i) => (
                     <InputToggle
@@ -147,3 +198,5 @@ export default function ModalDialog({item: defItem, onEnter, open, onClose}) {
         </Dialog>
     );
 }
+
+
