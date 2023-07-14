@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import {onMapData, openMap} from "./map/map";
 
-const fields = [
+const defFields = [
     {id: "autostart", title: "Auto Start", type: "checkbox"},
     {id: "description", title: "Description", type: "text"},
     {id: "zone", title: "Zone", type: "text"},
@@ -110,11 +110,11 @@ const InputToggle = ({field, item, onChange, onEnter}) => {
 
 export default function ModalDialog({item: defItem, onEnter, open, onClose}) {
     defItem = defItem || {};
-    const [dataItems, setDataItems] = useState([]);
+    const [fields, setFields] = useState([]);
     const [item, setItem] = useState({...defItem});
 
     useEffect(() => {
-        open && window.main.getDataItems(item.id).then(dataItems => setDataItems(dataItems || []))
+        open && window.main.getFields(item.id).then(fields => setFields(fields || []))
     }, [open])
 
     const onEnterHandle = () => {
@@ -130,7 +130,7 @@ export default function ModalDialog({item: defItem, onEnter, open, onClose}) {
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogContent>
-                {[...fields, ...dataItems].map((field, i) => (
+                {[...defFields, ...fields].map((field, i) => (
                     <InputToggle
                         key={i}
                         field={field}

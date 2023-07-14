@@ -1,6 +1,6 @@
 const {ipcRenderer} = require("electron");
 
-window.fileWrite = (filename, data) => {
+window.fileWrite = (filename, data="") => {
     return new Promise(resolve => {
         ipcRenderer.send("fileWrite", {filename, data});
         ipcRenderer.on("fileWrite-reply", (event, data) => resolve(data));
@@ -12,13 +12,13 @@ window.fileRead = (filename) => {
         ipcRenderer.on("fileRead-reply", (event, data) => resolve(data));
     })
 }
-window.setDataItems = (items) => {
-    ipcRenderer.send("setDataItems", {items});
+window.setFields = (fields) => {
+    ipcRenderer.send("setFields", fields);
 }
-window.getDataValue = (id) => {
+window.getItemsValue = (id) => {
     return new Promise((resolve => {
-        ipcRenderer.send("getDataValue", {id});
-        ipcRenderer.on("getDataValue-reply", (event, data) => resolve(data));
+        ipcRenderer.send("getItemsValue", id);
+        ipcRenderer.on("getItemsValue-reply", (event, data) => resolve(data));
     }))
 }
 window.waitSelector = (selectors, speed = 1000) => {
@@ -40,7 +40,6 @@ window.sleep = (microsecond = 1000) => {
         }, microsecond)
     }))
 }
-
 window.robotClick = (element) => {
     return new Promise(resolve => {
         const {width, height, top, left} = element.getBoundingClientRect();
@@ -50,21 +49,18 @@ window.robotClick = (element) => {
         ipcRenderer.on("robotClick-reply", resolve);
     })
 }
-
 window.robotKeyPress = (key, modifier=[]) => {
     return new Promise(resolve => {
         ipcRenderer.send("robotKeyPress", {key, modifier});
         ipcRenderer.on("robotKeyPress-reply", resolve);
     })
 }
-
 window.robotTypeText = (text) => {
     return new Promise(resolve => {
         ipcRenderer.send("robotTypeText", text);
         ipcRenderer.on("robotTypeText-reply", resolve);
     })
 }
-
 window.getLoadIndex = () => {
     return new Promise(resolve => {
         ipcRenderer.send("getLoadIndex");

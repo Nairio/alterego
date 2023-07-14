@@ -36,10 +36,10 @@ export default function Webview({item}) {
             <div className="webview-container">
                 <webview
                     webpreferences={WP({
-                        //nodeIntegration: true,
                         contextIsolation: false,
-                        allowRunningInsecureContent: true,
-                        webSecurity: false
+                        //nodeIntegration: true,
+                        //allowRunningInsecureContent: true,
+                        //webSecurity: false
                     })}
                     allowpopups="true"
                     className="webview"

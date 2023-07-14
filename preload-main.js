@@ -15,15 +15,15 @@ window.main = (() => {
     return {
         onData: (func) => {
             if (onDataUsed) return;
-            ipcRenderer.send("getData");
-            ipcRenderer.on("getData-reply", (event, data) => func(data));
+            ipcRenderer.send("getItems");
+            ipcRenderer.on("getItems-reply", (event, data) => func(data));
             onDataUsed = true;
         },
         deleteItem: async (item) => confirm("Delete?") && send("deleteItem", item),
         addItem: async (item) => send("addItem", item),
         editItem: async (item) => send("editItem", {item}),
         saveItems: async (items) => send("saveItems", items),
-        getDataItems: (id) => send("getDataItems", id),
+        getFields: (id) => send("getFields", id),
         onNavigate: (url) => send("onNavigate", url),
         openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),
         openDownloadDirectory: () => send("openDownloadDirectory"),

@@ -5,7 +5,6 @@ const {exec} = require('child_process');
 const robot = require("robotjs");
 const contextMenu = require("electron-context-menu");
 
-
 const loadIndex = {};
 const getDirName = (...items) => {
     const dirName = path.join(app.getPath("appData"), app.getName(), ...items);
@@ -13,7 +12,7 @@ const getDirName = (...items) => {
         fs.mkdirSync(dirName, {recursive: true});
     }
     return dirName;
-}
+};
 const getFileName = (defVal, ...items) => {
     const filename = items.pop();
     const dirName = getDirName(...items);
@@ -22,7 +21,7 @@ const getFileName = (defVal, ...items) => {
         fs.writeFileSync(filepath, defVal);
     }
     return filepath;
-}
+};
 const shellExec = (fileName) => {
     let openCommand;
     if (process.platform === 'win32') {
@@ -44,23 +43,23 @@ const shellExec = (fileName) => {
         }
         console.log(`Command output: ${stdout}`);
     });
-}
+};
 const NMenu = (win, items) => {
     const contextMenu = new Menu();
     items.forEach(([label, click]) => contextMenu.append(new MenuItem({label, click})));
     return {
         popup: (e, {x, y}) => contextMenu.popup(win, x, y)
     }
-}
-const NData = (() => {
-    const fileName = getFileName("[]", "data.json");
+};
+const NItems = (() => {
+    const fileName = getFileName("[]", "items.json");
 
     let onupdate;
-    let data;
+    let items;
 
     const fileUpdated = () => {
-        data = JSON.parse(fs.readFileSync(fileName, {encoding: "utf8"}));
-        onupdate(data);
+        items = JSON.parse(fs.readFileSync(fileName, {encoding: "utf8"}));
+        onupdate(items);
     }
 
     let setonupdate = (func) => {
@@ -76,33 +75,32 @@ const NData = (() => {
     });
 
     const addItem = async (item) => {
-        data.push(item);
-        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+        items.push(item);
+        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
     }
-
     const deleteItem = async (item) => {
-        const index = data.findIndex(({id}) => id === item.id);
-        data.splice(index, 1);
-        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+        const index = items.findIndex(({id}) => id === item.id);
+        items.splice(index, 1);
+        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
     }
-
     const editItem = async ({item}) => {
-        const index = data.findIndex(({id}) => id === item.id);
-        data[index] = item;
-        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+        const index = items.findIndex(({id}) => id === item.id);
+        items[index] = item;
+        fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
     }
-
     const saveItems = async (items) => {
         fs.writeFileSync(fileName, JSON.stringify(items, null, " "));
     }
+    const getItems = () => items
 
-    return {setonupdate, addItem, deleteItem, editItem,saveItems, getData: () => data}
-})()
-const NdataItems = (() => {
-    const dataItems = {};
-    const setDataItems = (items, id) => dataItems[id] = items;
-    return {setDataItems, getDataItems: (id) => dataItems[id]}
-})()
+    return {setonupdate, addItem, deleteItem, editItem, saveItems, getItems}
+})();
+const NFields = (() => {
+    const fieldsData = {};
+    const setFields = (fields, id) => fieldsData[id] = fields;
+    const getFields = (id) => fieldsData[id];
+    return {setFields, getFields}
+})();
 const confirm = (mainWindow, text) => {
     return new Promise(resolve => {
         mainWindow.webContents.send("confirm", text);
@@ -110,34 +108,30 @@ const confirm = (mainWindow, text) => {
             resolve(result)
         });
     })
-}
+};
 const settingsFile = getFileName("{}", "settings", "main.json");
 const settings = JSON.parse(fs.readFileSync(settingsFile, "utf8"));
 
-ipcMain.on("getDataItems", (event, id) => {
-    event.reply("getDataItems-reply", NdataItems.getDataItems(id));
-});
-ipcMain.on("getData", (event) => {
-    NData.setonupdate((data) => event.reply("getData-reply", {items: data, settings}));
+ipcMain.on("getItems", (event) => {
+    NItems.setonupdate((items) => event.reply("getItems-reply", {items, settings}));
 });
 ipcMain.on("addItem", async (event, item) => {
     item.id = Date.now().toString();
-    await NData.addItem(item);
+    await NItems.addItem(item);
     event.reply("addItem-reply", "ok");
 });
 ipcMain.on("deleteItem", async (event, item) => {
-    await NData.deleteItem(item);
+    await NItems.deleteItem(item);
     event.reply("deleteItem-reply", "ok");
 });
 ipcMain.on("editItem", async (event, {item}) => {
-    await NData.editItem({item});
+    await NItems.editItem({item});
     event.reply("editItem-reply", "ok");
 });
 ipcMain.on("saveItems", async (event, items) => {
-    await NData.saveItems(items);
+    await NItems.saveItems(items);
     event.reply("saveItems-reply", "ok");
 });
-
 ipcMain.on("onNavigate", async (event, url) => {
     const originRequest = url;
 
@@ -162,8 +156,14 @@ ipcMain.on("openScriptFile", (event, scriptfile) => {
 ipcMain.on("openDownloadDirectory", () => {
     shellExec(getDirName("downloadDirectory"))
 });
+ipcMain.on("getFields", (event, id) => {
+    event.reply("getFields-reply", NFields.getFields(id))
+});
 
-const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, proxy, lang, useragent, coords}) => {
+const onWebContents = async (index, mainWindow, webViewContents, item) => {
+    const {id, scriptfile, proxy, lang, useragent, coords} = item;
+
+    console.log(item.url, scriptfile);
 
     if (scriptfile) {
         const fileName = getFileName("", "scripts", scriptfile);
@@ -171,8 +171,10 @@ const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, pr
         webViewContents.addListener("did-finish-load", () => {
             if (webViewContents.getURL() === "about:blank") return;
 
-            loadIndex[index] = loadIndex[index] || 0;
-            loadIndex[index]++;
+            console.log(item.url, webViewContents.getURL(), "did-finish-load");
+
+            loadIndex[id] = loadIndex[id] || 0;
+            loadIndex[id]++;
             const script = fs.readFileSync(fileName, "utf8");
             script && webViewContents.executeJavaScript(script);
         });
@@ -213,28 +215,26 @@ const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, pr
 
     webViewContents.session.setProxy({proxyRules: proxy});
     webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
-    webViewContents.debugger.attach();
 
     (useragent && !lang) && webViewContents.session.setUserAgent(useragent);
     (useragent && lang) && webViewContents.session.setUserAgent(useragent, lang);
 
-    webViewContents.debugger.sendCommand("Emulation.setGeolocationOverride", {
+    !webViewContents.debugger.isAttached() && webViewContents.debugger.attach();
+    coords && coords[0] && coords[1] && webViewContents.debugger.sendCommand("Emulation.setGeolocationOverride", {
         latitude: +coords[0],
         longitude: +coords[1],
         accuracy: 1
     });
 
+
     webViewContents.ipc.on("getLoadIndex", (event) => {
-        event.reply("getLoadIndex-reply", loadIndex[index])
+        event.reply("getLoadIndex-reply", loadIndex[id])
     });
-    webViewContents.ipc.on("getDataValue", (event, {id}) => {
-        const items = NData.getData();
-        const item = items[index];
-        const value = item[id];
-        event.reply("getDataValue-reply", value)
+    webViewContents.ipc.on("getItemsValue", (event, valueId) => {
+        event.reply("getItemsValue-reply", item[valueId])
     });
-    webViewContents.ipc.on("setDataItems", (event, {items}) => {
-        NdataItems.setDataItems(items, index);
+    webViewContents.ipc.on("setFields", (event, fields) => {
+        NFields.setFields(fields, id);
     });
     webViewContents.ipc.on("fileRead", (event, {filename}) => {
         const data = fs.readFileSync(path.join(getDirName("downloadDirectory"), filename), "utf8");
@@ -244,7 +244,7 @@ const onWebContents = async (index, mainWindow, webViewContents, {scriptfile, pr
         fs.writeFileSync(path.join(getDirName("downloadDirectory"), filename), data);
         event.reply("fileWrite-reply", "")
     });
-}
+};
 const createWindow = () => {
     const {height, width} = screen.getPrimaryDisplay().workAreaSize;
 
@@ -281,7 +281,7 @@ const createWindow = () => {
     const openCardToggle = (e) => {
         settings.cardsOpen = !settings.cardsOpen;
         e.menu.items.map(m => m.visible = !m.visible);
-        NData.setonupdate((data) => mainWindow.webContents.send("getData-reply", {items: data, settings}));
+        NItems.setonupdate((items) => mainWindow.webContents.send("getItems-reply", {items, settings}));
         fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
     }
 
@@ -305,7 +305,7 @@ const createWindow = () => {
                             accelerator: 'CmdOrCtrl+Option+I',
                             click: () => mainWindow.webContents.openDevTools()
                         }
-                        ]
+                    ]
                 },
                 {
                     label: 'Reload',
@@ -382,7 +382,7 @@ const createWindow = () => {
     const menu = NMenu(mainWindow, [["App DevTools", () => mainWindow.webContents.openDevTools()]]);
     mainWindow.webContents.on("context-menu", menu.popup);
     mainWindow.webContents.on("did-attach-webview", () => {
-        const items = NData.getData();
+        const items = NItems.getItems();
         const allWebContents = webContents.getAllWebContents().filter(c => c.hostWebContents && c.hostWebContents.id === mainWindow.webContents.id).sort((a, b) => a.id - b.id)
         if (items.length === allWebContents.length) {
             allWebContents.forEach((webViewContents, i) => onWebContents(i, mainWindow, webViewContents, items[i]))
@@ -418,14 +418,13 @@ const createWindow = () => {
     ipcMain.on("setSelectedItemId", (event, id) => {
         settings.selectedItemId = id;
         fs.writeFileSync(settingsFile, JSON.stringify(settings, null, " "));
-        NData.setonupdate((data) => event.reply("getData-reply", {items: data, settings}));
+        NItems.setonupdate((items) => event.reply("getItems-reply", {items, settings}));
     });
-
 
 
     app.isPackaged
         ? mainWindow.loadFile(path.join(__dirname, "build", "index.html"))
         : mainWindow.loadURL("http://localhost:3000");
-}
+};
 
 app.whenReady().then(createWindow);

@@ -16,7 +16,6 @@ export default function App() {
             items.map(item => item.selected = item.id === settings.selectedItemId);
             dispatch(actions.settings.set(settings));
             dispatch(actions.items.set(items));
-            console.log(items)
         });
     }, []);
 
