@@ -6,6 +6,7 @@ const apikey = "6c9d5c18-b6af-4b39-8a71-d9b85ae9d119";
 
 export const onMapData = (func) => window.mapInfo.sendData = func;
 export const openMap = (coords = "40.178354870766995,44.513629617002195") => {
+    coords = coords.split(",");
     const {mapInfo} = window;
 
     if (mapInfo.isReady) {
@@ -24,7 +25,7 @@ export const openMap = (coords = "40.178354870766995,44.513629617002195") => {
                         coordinates: coords
                     }
                 }, {draggable: true});
-                placemark.events.add('drag', () => mapInfo.sendData(placemark.geometry.getCoordinates()));
+                placemark.events.add('drag', () => mapInfo.sendData(placemark.geometry.getCoordinates().join(",")));
                 map.geoObjects.add(placemark);
                 mapInfo.setCoords = (coords) => {
                     placemark.geometry.setCoordinates(coords);

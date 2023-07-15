@@ -212,7 +212,7 @@ ipcMain.on("getFields", (event, id) => {
 });
 
 const onWebContents = async (index, mainWindow, webViewContents, item, group) => {
-    const {proxy, lang, useragent, coords} = group;
+    let {proxy, lang, useragent, coords} = group;
     const {id, scriptfile} = item;
 
     if (scriptfile) {
@@ -264,16 +264,44 @@ const onWebContents = async (index, mainWindow, webViewContents, item, group) =>
     webViewContents.session.setProxy({proxyRules: proxy});
     webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
 
-    (useragent && !lang) && webViewContents.session.setUserAgent(useragent);
-    (useragent && lang) && webViewContents.session.setUserAgent(useragent, lang);
+    useragent = useragent || ((u) => {
+        u = u.replace(/\s\(/gi, "(");
+        let a = {};
+        let i = 0;
+        let s = false;
+        for (const k in u) {
+            a[i] = a[i] || "";
+            if (u[k] === "(") {
+                s = true;
+                a[i] += " (";
+                continue;
+            }
+            if (u[k] === ")") s = false;
+            if (u[k] === " " && !s) {
+                i++;
+                continue;
+            }
+            a[i] += u[k];
+        }
+        let r = "";
+        for (const k in a) {
+            if (![app.getName(), "Electron"].includes(a[k].split("/")[0])) {
+                r += " " + a[k];
+            }
+        }
+        return r.trim();
+    })(webViewContents.getUserAgent());
+
+    lang ? webViewContents.session.setUserAgent(useragent, lang) : webViewContents.session.setUserAgent(useragent);
 
     !webViewContents.debugger.isAttached() && webViewContents.debugger.attach();
-    coords && coords[0] && coords[1] && webViewContents.debugger.sendCommand("Emulation.setGeolocationOverride", {
+    coords = coords || "40.178354870766995,44.513629617002195";
+    coords = coords.split(",");
+    webViewContents.debugger.sendCommand("Emulation.setGeolocationOverride", {
         latitude: +coords[0],
         longitude: +coords[1],
         accuracy: 1
     });
-
 
     webViewContents.ipc.on("getLoadIndex", (event) => {
         event.reply("getLoadIndex-reply", loadIndex[id])
