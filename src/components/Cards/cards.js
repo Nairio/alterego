@@ -10,18 +10,18 @@ const {deleteItem, saveGroups,saveItems, deleteGroup, setSelectedGroupId} = wind
 
 let NSort, NSorts = {};
 
-function CardItems({items, groupid}) {
+function CardItems({items, group}) {
     const dispatch = useDispatch();
     const listRef = useRef(null);
 
     useEffect(() => {
-        NSorts[groupid] && NSorts[groupid].destroy();
-        NSorts[groupid] = new Sortable(listRef.current, {
+        NSorts[group.id] && NSorts[group.id].destroy();
+        NSorts[group.id] = new Sortable(listRef.current, {
             animation: 500,
             ghostClass: "sortable-background",
             dataIdAttr: "id",
             dragClass: "sortable-drag",
-            onSort: () => saveItems(NSorts[groupid].toArray().reduce((a, c) => ([...a, items.filter(i => i.id === c)[0]]), []))
+            onSort: () => saveItems(NSorts[group.id].toArray().reduce((a, c) => ([...a, items.filter(i => i.id === c)[0]]), items.filter(item => item.groupid !== group.id)))
         });
     }, [items]);
 
@@ -31,9 +31,9 @@ function CardItems({items, groupid}) {
 
     return (
         <div className={"accordion-content"} ref={listRef}>
-            {items.filter(item => item.groupid === groupid).map((item) => (
+            {items.filter(item => item.groupid === group.id).map((item) => (
                 <div key={item.id} className={"card"} id={item.id}>
-                    <Webview item={item}/>
+                    <Webview item={item} group={group}/>
                     <div className={"footer"}>
                         <div className={"edit"}>
                             <ContextMenuItem item={item} deleteItem={deleteItem} editItem={openModalDialogItems}/>
@@ -91,7 +91,7 @@ export default function Cards() {
                             <small onClick={() => selectedGroupId(group.id)}>{group.description}</small>
                         </h1>
                     </div>
-                    <CardItems groupid={group.id} items={items}/>
+                    <CardItems items={items} group={group}/>
                 </div>
             ))}
         </div>

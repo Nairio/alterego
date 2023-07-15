@@ -5,10 +5,10 @@ import {useDispatch} from "react-redux";
 import {actions} from "../../redux/rtk";
 
 
-export default function Webview({item}) {
+export default function Webview({item, group}) {
     const WVRef = createRef();
     const dispatch = useDispatch();
-    const [src, setSRC] = useState(item.autostart || item.selected ? item.url : "about:blank");
+    const [src, setSRC] = useState(item.autostart || item.selected  ? item.url : "about:blank");
 
     useEffect(() => {
         const webview = WVRef.current;
@@ -18,7 +18,7 @@ export default function Webview({item}) {
         mainState.webViews[item.id] = webview;
         webview.addEventListener("dom-ready", () => {
             webview.setAttribute("ready", "true");
-            webview.setZoomFactor(+webview.getAttribute("zoom"))
+            webview.setZoomFactor(+webview.getAttribute("zoom"));
         });
         item.selected && onClickHandler();
 
@@ -29,24 +29,19 @@ export default function Webview({item}) {
         setSRC(item.url);
     }
 
-    const WP = (o) => Object.entries(o).map(([k, v]) => `${k}=${v}`).join(", ");
 
     return (
         <>
             <div className="webview-container">
                 <webview
-                    webpreferences={WP({
-                        contextIsolation: false,
-                        //nodeIntegration: true,
-                        //allowRunningInsecureContent: true,
-                        //webSecurity: false
-                    })}
+                    src={src}
+                    useragent={group.useragent}
+                    partition={item.groupid && `persist:${window.btoa(item.groupid)}`}
+                    ref={WVRef}
+                    webpreferences="contextIsolation=false"
                     allowpopups="true"
                     className="webview"
-                    partition={item.groupid && `persist:${window.btoa(item.groupid)}`}
-                    src={src}
                     zoom="0.1"
-                    ref={WVRef}
                 />
             </div>
             <div className="fake" onClick={onClickHandler}/>

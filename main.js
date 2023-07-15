@@ -140,7 +140,7 @@ const NData = (() => {
 
     const setUserAgent = (groupid, useragent) => {
         const index = data.groups.findIndex(({id}) => id === groupid);
-        if(data.groups[index].useragent === useragent)return;
+        if (data.groups[index].useragent === useragent) return;
         data.groups[index].useragent = data.groups[index].useragent || useragent;
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
@@ -238,7 +238,7 @@ ipcMain.on("getFields", (event, id) => {
     event.reply("getFields-reply", NFields.getFields(id))
 });
 
-const onWebContents = async (index, mainWindow, webViewContents, item, group) => {
+const onWebContents = async (index, mainWindow, webViewContents, {item, group}) => {
     let {proxy, lang, useragent, coords} = group;
     const {id, scriptfile} = item;
 
@@ -485,9 +485,12 @@ const createWindow = () => {
     mainWindow.webContents.on("context-menu", menu.popup);
     mainWindow.webContents.on("did-attach-webview", () => {
         const {items, groups} = NData.getData();
+        const nItems = [];
+        groups.forEach(group => items.filter(item => item.groupid === group.id).forEach(item => nItems.push({item, group})));
+
         const allWebContents = webContents.getAllWebContents().filter(c => c.hostWebContents && c.hostWebContents.id === mainWindow.webContents.id).sort((a, b) => a.id - b.id)
         if (items.length === allWebContents.length) {
-            allWebContents.forEach((webViewContents, i) => onWebContents(i, mainWindow, webViewContents, items[i], groups.filter(group => group.id === items[i].groupid)[0]))
+            allWebContents.forEach((webViewContents, i) => onWebContents(i, mainWindow, webViewContents, nItems[i]))
         }
     });
 
@@ -516,11 +519,9 @@ const createWindow = () => {
         robot.typeString(text);
         event.reply("robotTypeText-reply");
     });
-
     ipcMain.on("setSelectedItemId", (event, id) => {
         NData.setSelectedItemId(id)
     });
-
     ipcMain.on("setSelectedGroupId", (event, id) => {
         NData.setSelectedGroupId(id)
     });
