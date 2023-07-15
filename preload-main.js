@@ -24,12 +24,14 @@ window.main = (() => {
         deleteItem: async (item) => confirm("Delete?") && send("deleteItem", item),
         addEditItem: async (item) => send("addEditItem", item),
         addEditGroup: async (group) => send("addEditGroup", group),
+        saveGroups: async (groups) => send("saveGroups", groups),
         saveItems: async (items) => send("saveItems", items),
         getFields: (id) => send("getFields", id),
         onNavigate: (url) => send("onNavigate", url),
         openScriptFile: (scriptfile) => send("openScriptFile", scriptfile),
         openDownloadDirectory: () => send("openDownloadDirectory"),
-        setSelectedItemId: (id) => ipcRenderer.send("setSelectedItemId", id)
+        setSelectedItemId: (id) => ipcRenderer.send("setSelectedItemId", id),
+        setSelectedGroupId: (id) => ipcRenderer.send("setSelectedGroupId", id),
     }
 })();
 

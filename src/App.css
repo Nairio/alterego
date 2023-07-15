@@ -118,8 +118,23 @@
 
 .cards .group h1 {
     margin-right: 8px;
-    //font-size: 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.cards .group h1 small{
+    border-bottom: dotted 2px;
+    cursor: pointer;
+}
+
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.accordion-header.active + .accordion-content {
+    max-height: 1000px;
 }

@@ -90,10 +90,15 @@ const NData = (() => {
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
+    const saveGroups = async (groups) => {
+        data.groups = groups;
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
     const saveItems = async (items) => {
         data.items = items;
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
+
     const getData = () => data
 
     const cardsOpenToggle = () => {
@@ -102,6 +107,11 @@ const NData = (() => {
     }
     const setSelectedItemId = (id) => {
         data.settings.selectedItemId = id;
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
+
+    const setSelectedGroupId = (id) => {
+        data.settings.selectedGroupId = id;
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
@@ -128,6 +138,12 @@ const NData = (() => {
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
 
+    const setUserAgent = (groupid, useragent) => {
+        const index = data.groups.findIndex(({id}) => id === groupid);
+        if(data.groups[index].useragent === useragent)return;
+        data.groups[index].useragent = data.groups[index].useragent || useragent;
+        fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+    }
 
     fileUpdated();
     return {
@@ -138,8 +154,11 @@ const NData = (() => {
         deleteItem,
         cardsOpenToggle,
         setSelectedItemId,
+        setSelectedGroupId,
+        saveGroups,
         saveItems,
-        getData
+        getData,
+        setUserAgent
     }
 })();
 const NFields = (() => {
@@ -179,6 +198,14 @@ ipcMain.on("deleteGroup", async (event, group) => {
     event.reply("deleteGroup-reply", "ok");
 });
 
+ipcMain.on("saveItems", async (event, items) => {
+    await NData.saveItems(items);
+    event.reply("saveItems-reply", "ok");
+});
+ipcMain.on("saveGroups", async (event, groups) => {
+    await NData.saveGroups(groups);
+    event.reply("saveGroups-reply", "ok");
+});
 ipcMain.on("saveItems", async (event, items) => {
     await NData.saveItems(items);
     event.reply("saveItems-reply", "ok");
@@ -291,6 +318,7 @@ const onWebContents = async (index, mainWindow, webViewContents, item, group) =>
         }
         return r.trim();
     })(webViewContents.getUserAgent());
+    NData.setUserAgent(group.id, useragent);
 
     lang ? webViewContents.session.setUserAgent(useragent, lang) : webViewContents.session.setUserAgent(useragent);
 
@@ -491,6 +519,10 @@ const createWindow = () => {
 
     ipcMain.on("setSelectedItemId", (event, id) => {
         NData.setSelectedItemId(id)
+    });
+
+    ipcMain.on("setSelectedGroupId", (event, id) => {
+        NData.setSelectedGroupId(id)
     });
 
 

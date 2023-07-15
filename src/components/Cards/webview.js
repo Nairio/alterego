@@ -5,7 +5,7 @@ import {useDispatch} from "react-redux";
 import {actions} from "../../redux/rtk";
 
 
-export default function Webview({item, group}) {
+export default function Webview({item}) {
     const WVRef = createRef();
     const dispatch = useDispatch();
     const [src, setSRC] = useState(item.autostart || item.selected ? item.url : "about:blank");
@@ -43,7 +43,7 @@ export default function Webview({item, group}) {
                     })}
                     allowpopups="true"
                     className="webview"
-                    partition={group.id && `persist:${window.btoa(group.id)}`}
+                    partition={item.groupid && `persist:${window.btoa(item.groupid)}`}
                     src={src}
                     zoom="0.1"
                     ref={WVRef}
