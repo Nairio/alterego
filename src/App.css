@@ -7,7 +7,7 @@
     display: flex;
 }
 
-.cards {
+.groups {
     --card-width: calc(100vw * 0.15);
     --card-height: calc(var(--card-width) / 2);
     width: var(--card-width);
@@ -16,13 +16,13 @@
     background: #eeeeee;
 }
 
-.cards:after {
+.groups:after {
     content: "";
     display: block;
     height: 48px;
 }
 
-.cards .card {
+.groups .card {
     margin: 8px;
     background-color: #fff;
     border-radius: 4px;
@@ -30,7 +30,7 @@
     overflow: hidden;
 }
 
-.cards .card .fake {
+.groups .card .fake {
     background: #ffffff20;
     cursor: pointer;
     position: relative;
@@ -38,30 +38,25 @@
     margin-top: calc(-1 * var(--card-height));
 }
 
-.cards .card .footer * {
+.groups .card .footer * {
     font-size: 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.cards .card .footer {
+.groups .card .footer {
     display: flex;
     margin: 8px 0;
 }
 
-.cards .card .footer div:first-child {
+.groups .card .footer div:first-child {
     font-weight: bold;
     min-width: 22px;
 }
 
-.cards .card .webview-container {
+.groups .card .webview {
     height: var(--card-height);
-    border-bottom: solid 1px #eeeeee;
-}
-
-.cards .card .webview-container .webview {
-    height: 100%;
     width: 100%;
     background: #ffffff;
     z-index: 1;
@@ -77,11 +72,11 @@
     padding: 8px;
 }
 
-.big-browser .big-webview-container {
+.big-browser .width-height {
     flex: 1;
 }
 
-.big-browser .big-webview-container .topleft {
+.big-browser .top-left {
     position: absolute;
 }
 
@@ -97,7 +92,7 @@
     left: 0 !important;
 }
 
-.hidden .cards, .hidden .add-dialog {
+.hidden .groups, .hidden .add-dialog {
     visibility: hidden;
     width: 0;
 }
@@ -116,14 +111,15 @@
     opacity: 0;
 }
 
-.cards .group h1 {
+.groups .group .header {
+    font-size: 30px;
     margin-right: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.cards .group h1 small{
+.groups .group .header small{
     border-bottom: dotted 2px;
     cursor: pointer;
 }

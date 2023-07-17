@@ -3,6 +3,35 @@ import {configureStore, createSlice} from "@reduxjs/toolkit";
 
 const slices = [
     {
+        name: "position",
+        initialState: {top: 0, left: 0, width: 0, height: 0},
+        reducers: {
+            set: (state, action) => action.payload
+        }
+    },
+    {
+        name: "addressBarShow",
+        initialState: false,
+        reducers: {
+            set: (state, action) => action.payload
+        }
+    },
+    {
+        name: "webviews",
+        initialState: {},
+        reducers: {
+            set: (state, {payload: [id, data]}) => {
+                state[id] = data;
+                return state
+            },
+            setAddress: (state, {payload: [id, address]}) => {
+                state[id].address = address;
+
+                return state
+            },
+        }
+    },
+    {
         name: "selectedItemId",
         initialState: "",
         reducers: {

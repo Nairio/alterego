@@ -9,9 +9,9 @@ import {
     Switch,
     TextField
 } from "@mui/material";
-import {onMapData, openMap} from "./map/map";
+import {onMapData, openMap} from "./map";
 import {useDispatch, useSelector} from "react-redux";
-import {actions} from "../redux/rtk";
+import {actions} from "../../redux/rtk";
 
 const defGroupFields = [
     {id: "description", title: "Description", type: "text"},

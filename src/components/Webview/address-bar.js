@@ -5,8 +5,33 @@ import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import {useDispatch, useSelector} from "react-redux";
+import {mainState} from "../../vars";
+import {actions} from "../../redux/rtk";
 
-export default function AddressBar({open, canGoForward, canGoBack, address, onEnter, onChange, goBack, goForward}) {
+export function AddressBar() {
+    const dispatch = useDispatch();
+    const {selectedItemId, addressBarShow, webviews} = useSelector(state => state);
+    const webview = mainState.webViews[selectedItemId];
+    const {canGoForward, canGoBack, address} = webviews[selectedItemId] || {canGoForward: false, canGoBack: false, address: ""};
+
+    return (
+        <div className="big-browser">
+            <AddressInput
+                open={addressBarShow}
+                canGoForward={canGoForward}
+                canGoBack={canGoBack}
+                address={address}
+                onChange={(address) => dispatch(actions.webviews.setAddress([selectedItemId, address]))}
+                goBack={() => webview.goBack()}
+                goForward={() => webview.goForward()}
+                onEnter={async () => webview.src = await window.main.onNavigate(address)}
+            />
+            <div className="width-height"><div className={"top-left"}/></div>
+        </div>
+    )
+}
+export function AddressInput({open, canGoForward, canGoBack, address, onEnter, onChange, goBack, goForward}) {
     const onAddressChange = (e) => {
         if (e.code === "Enter") {
             onEnter()

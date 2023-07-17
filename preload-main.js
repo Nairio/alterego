@@ -37,7 +37,7 @@ window.main = (() => {
 
 
 ipcRenderer.on("leftTop", (event) => {
-    const topleft = document.querySelector(".topleft");
+    const topleft = document.querySelector(".top-left");
     const x = window.outerWidth - window.innerWidth + topleft.offsetLeft;
     const y = window.outerHeight - window.innerHeight + topleft.offsetTop;
     event.sender.send("leftTop-reply", {x, y})

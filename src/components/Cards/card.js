@@ -2,7 +2,7 @@ import {useDispatch} from "react-redux";
 import React from "react";
 import {actions} from "../../redux/rtk";
 import {ContextMenuItem} from "./context-menu";
-import Webview from "./webview";
+import Webview from "../Webview/webview";
 import {Sortable} from "./sortable";
 
 export function Cards({items, group, className}) {
