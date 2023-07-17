@@ -1,15 +1,13 @@
 import React, {useEffect} from "react";
 import "./App.css";
-import Cards from "./components/Cards/cards";
 import BigBrowser from "./components/BigBrowser/big-browser";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import {actions} from "./redux/rtk";
 import {ModalDialogGroup, ModalDialogItems} from "./components/modal-dialog";
-import {Fab} from "@mui/material";
+import {Items} from "./components/Cards/items";
 
 
 export default function App() {
-    const cardsOpen = useSelector(state => state.settings.cardsOpen);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -21,18 +19,9 @@ export default function App() {
         });
     }, []);
 
-    const openModalDialogGroup = () => {
-        dispatch(actions.modalDialogGroups.open({}))
-    }
-
     return (
         <>
-            <div className={cardsOpen ? "visible" : "hidden"}>
-                <Cards/>
-                <div className={"add-dialog"}>
-                    <Fab color="primary" size="small" onClick={openModalDialogGroup}>+</Fab>
-                </div>
-            </div>
+            <Items/>
             <BigBrowser/>
             <ModalDialogItems/>
             <ModalDialogGroup/>

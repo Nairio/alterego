@@ -1,14 +1,16 @@
 import "../../App.css";
-import React, {createRef, useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {mainState} from "../../vars";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {actions} from "../../redux/rtk";
 
 
 export default function Webview({item, group}) {
-    const WVRef = createRef();
+    const WVRef = useRef();
     const dispatch = useDispatch();
     const [src, setSRC] = useState(item.autostart || item.selected  ? item.url : "about:blank");
+    const selectedItemId = useSelector(state => state.selectedItemId);
+
 
     useEffect(() => {
         const webview = WVRef.current;
@@ -24,9 +26,14 @@ export default function Webview({item, group}) {
 
     }, []);
 
+    useEffect(() => {
+        if(item.id===selectedItemId){
+            setSRC(item.url);
+        }
+    }, [selectedItemId]);
+
     const onClickHandler = () => {
         dispatch(actions.selectedItemId.set(item.id));
-        setSRC(item.url);
     }
 
 

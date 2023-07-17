@@ -85,9 +85,9 @@
     position: absolute;
 }
 
-.add-dialog {
+.add-group-dialog {
     position: absolute;
-    bottom: 8px;
+    bottom: 48px;
     left: 8px
 }
 

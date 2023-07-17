@@ -6,6 +6,7 @@ import {useSelector} from "react-redux";
 const topleft = createRef();
 const widthheight = createRef();
 
+
 export default function BigBrowser() {
     const {selectedItemId} = useSelector(state => state);
     const webview = mainState.webViews[selectedItemId];
@@ -15,6 +16,15 @@ export default function BigBrowser() {
     const [canGoBack, setCanGoBack] = useState(false);
     const [canGoForward, setCanGoForward] = useState(false);
 
+    const clearWebview = () => {
+        if (mainState.webview) {
+            mainState.webview.setAttribute("zoom", "0.1");
+            mainState.webview.setZoomFactor(0.1);
+            mainState.webview.removeAttribute("style");
+            mainState.webview.removeEventListener("did-navigate", mainState.didNavigate);
+            setShowAddressBar(false);
+        }
+    }
     const getPosition = (topleft, widthheight) => {
         const computedStyle1 = window.getComputedStyle(topleft.current);
         const computedStyle2 = window.getComputedStyle(widthheight.current);
@@ -26,24 +36,27 @@ export default function BigBrowser() {
     }
     const replaceWebview = (webview, didNavigate) => {
         const {top, left, width, height} = getPosition(topleft, widthheight);
-        if (mainState.webview) {
-            mainState.webview.setAttribute("zoom", "0.1");
-            mainState.webview.setZoomFactor(0.1);
-            mainState.webview.removeAttribute("style");
-            mainState.webview.removeEventListener("did-navigate", mainState.didNavigate);
-        }
         mainState.webview = webview;
         mainState.didNavigate = didNavigate;
         mainState.webview.addEventListener("did-navigate", didNavigate);
         mainState.webview.setAttribute("style", `position:absolute;left:${left};top:${top};width:${width};height:${height}`);
         mainState.webview.setAttribute("zoom", "1");
-        mainState.webview.getAttribute("ready") && mainState.webview.setZoomFactor(1);
+        try {
+            mainState.webview.getAttribute("ready") && mainState.webview.setZoomFactor(1);
+        } catch (e) {
+            console.log("error")
+        }
     }
+
+    useEffect(() => {
+        if (!selectedItemId) clearWebview();
+    }, [selectedItemId]);
+
 
     const toBigWebviewContainer = () => {
         if (!webview) return;
+        clearWebview();
         setShowAddressBar(true);
-
         replaceWebview(webview, (event) => {
             setAddress(event.url);
             setCanGoBack(webview.canGoBack());

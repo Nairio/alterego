@@ -13,6 +13,16 @@ const slices = [
         }
     },
     {
+        name: "selectedGroupId",
+        initialState: "",
+        reducers: {
+            set: (state, action) => {
+                window.main.setSelectedGroupId(action.payload);
+                return action.payload
+            },
+        }
+    },
+    {
         name: "groups",
         initialState: [],
         reducers: {
