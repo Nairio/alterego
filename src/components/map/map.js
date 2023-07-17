@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 window.mapInfo = window.mapInfo || {};
 
@@ -25,7 +25,7 @@ export const openMap = (coords = "40.178354870766995,44.513629617002195") => {
                         coordinates: coords
                     }
                 }, {draggable: true});
-                placemark.events.add('drag', () => mapInfo.sendData(placemark.geometry.getCoordinates().join(",")));
+                placemark.events.add("drag", () => mapInfo.sendData(placemark.geometry.getCoordinates().join(",")));
                 map.geoObjects.add(placemark);
                 mapInfo.setCoords = (coords) => {
                     placemark.geometry.setCoordinates(coords);

@@ -1,7 +1,7 @@
 const {app, BrowserWindow, webContents, ipcMain, screen, Menu, MenuItem} = require("electron");
 const path = require("path");
 const fs = require("fs");
-const {exec} = require('child_process');
+const {exec} = require("child_process");
 const robot = require("robotjs");
 const contextMenu = require("electron-context-menu");
 
@@ -24,9 +24,9 @@ const getFileName = (defVal, ...items) => {
 };
 const shellExec = (fileName) => {
     let openCommand;
-    if (process.platform === 'win32') {
+    if (process.platform === "win32") {
         openCommand = `explorer "${fileName}"`;
-    } else if (process.platform === 'darwin') {
+    } else if (process.platform === "darwin") {
         openCommand = `open "${fileName}"`;
     } else {
         openCommand = `xdg-open "${fileName}"`;
@@ -269,11 +269,11 @@ const onWebContents = async (index, mainWindow, webViewContents, {item, group}) 
         showCopyLink: true,
         append: () => [
             {
-                label: 'Reload',
+                label: "Reload",
                 click: () => webViewContents.reload()
             },
             {
-                label: 'Clear Cache',
+                label: "Clear Cache",
                 click: async () => {
                     if (await confirm(mainWindow, "Clear Cache")) {
                         await webViewContents.session.clearCache();
@@ -392,50 +392,50 @@ const createWindow = () => {
             label: app.getName(),
         },
         {
-            label: 'File',
+            label: "File",
             submenu: [
                 {
-                    label: 'DevTools',
+                    label: "DevTools",
                     submenu: [
                         {
-                            label: 'Open DevTools',
-                            accelerator: 'CmdOrCtrl+Shift+J',
+                            label: "Open DevTools",
+                            accelerator: "CmdOrCtrl+Shift+J",
                             click: () => mainWindow.webContents.openDevTools()
                         },
                         {
-                            label: 'Open DevTools',
-                            accelerator: 'CmdOrCtrl+Option+I',
+                            label: "Open DevTools",
+                            accelerator: "CmdOrCtrl+Option+I",
                             click: () => mainWindow.webContents.openDevTools()
                         }
                     ]
                 },
                 {
-                    label: 'Reload',
+                    label: "Reload",
                     submenu: [
                         {
-                            label: 'Reload',
-                            accelerator: 'CmdOrCtrl+R',
+                            label: "Reload",
+                            accelerator: "CmdOrCtrl+R",
                             click: () => mainWindow.reload()
                         }
                     ]
                 },
                 {
-                    label: 'Open',
+                    label: "Open",
                     click: () => {
                         // Действия при выборе "Open"
                     }
                 },
                 {
-                    label: 'Save',
+                    label: "Save",
                     click: () => {
                         // Действия при выборе "Save"
                     }
                 },
                 {
-                    type: 'separator'
+                    type: "separator"
                 },
                 {
-                    label: 'Exit',
+                    label: "Exit",
                     click: () => {
                         app.quit();
                     }
@@ -443,32 +443,32 @@ const createWindow = () => {
             ]
         },
         {
-            label: 'Edit',
+            label: "Edit",
             submenu: [
                 {
-                    label: 'Cut',
-                    role: 'cut'
+                    label: "Cut",
+                    role: "cut"
                 },
                 {
-                    label: 'Copy',
-                    role: 'copy'
+                    label: "Copy",
+                    role: "copy"
                 },
                 {
-                    label: 'Paste',
-                    role: 'paste'
+                    label: "Paste",
+                    role: "paste"
                 }
             ]
         },
         {
-            label: 'Cards',
+            label: "Cards",
             submenu: [
                 {
-                    label: 'Open',
+                    label: "Open",
                     visible: !NData.getData().settings.cardsOpen,
                     click: openCardToggle
                 },
                 {
-                    label: 'Close',
+                    label: "Close",
                     visible: NData.getData().settings.cardsOpen,
                     click: openCardToggle
                 }

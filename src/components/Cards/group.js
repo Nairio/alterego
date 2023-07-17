@@ -38,7 +38,7 @@ export function Group({group, items, settings}) {
 
     return (
         <div key={group.id} className={"group"} id={group.id}>
-            <div className={`accordion-header ${settings.selectedGroupId === group.id ? 'active' : ''}`}>
+            <div className={`accordion-header ${settings.selectedGroupId === group.id ? "active" : ""}`}>
                 <h1>
                     <ContextMenuGroup group={group} deleteGroup={window.main.deleteGroup} editGroup={openModalDialogGroup} addItem={openModalDialogItems}/>
                     <small onClick={() => selectedGroupId(group.id)}>{group.description}</small>

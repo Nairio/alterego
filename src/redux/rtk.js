@@ -1,5 +1,5 @@
-import React from 'react';
-import {configureStore, createSlice} from '@reduxjs/toolkit';
+import React from "react";
+import {configureStore, createSlice} from "@reduxjs/toolkit";
 
 const slices = [
     {
