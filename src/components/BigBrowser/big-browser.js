@@ -41,17 +41,12 @@ export default function BigBrowser() {
         mainState.webview.addEventListener("did-navigate", didNavigate);
         mainState.webview.setAttribute("style", `position:absolute;left:${left};top:${top};width:${width};height:${height}`);
         mainState.webview.setAttribute("zoom", "1");
-        try {
-            mainState.webview.getAttribute("ready") && mainState.webview.setZoomFactor(1);
-        } catch (e) {
-            console.log("error")
-        }
+        mainState.webview.getAttribute("ready") && mainState.webview.setZoomFactor(1);
     }
 
     useEffect(() => {
         if (!selectedItemId) clearWebview();
     }, [selectedItemId]);
-
 
     const toBigWebviewContainer = () => {
         if (!webview) return;
@@ -70,7 +65,6 @@ export default function BigBrowser() {
         toBigWebviewContainer();
         return () => {window.removeEventListener("resize", toBigWebviewContainer)};
     }, [webview]);
-
 
     return (
         <div className="big-browser">
