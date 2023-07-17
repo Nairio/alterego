@@ -51,6 +51,7 @@ export default function Webview({item, group}) {
         }
     }, [selectedItemId, left, top, width, height])
 
+
     return (
         <>
             <webview
@@ -58,7 +59,7 @@ export default function Webview({item, group}) {
                 useragent={group.useragent}
                 partition={item.groupid && `persist:${window.btoa(item.groupid)}`}
                 ref={WVRef}
-                webpreferences="contextIsolation=false"
+                webpreferences={`contextIsolation=false`}
                 allowpopups="true"
                 className="webview"
                 zoom="0.1"

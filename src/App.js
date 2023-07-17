@@ -27,6 +27,7 @@ export default function App() {
             dispatch(actions.settings.set(settings));
             dispatch(actions.items.set(items));
             dispatch(actions.groups.set(groups));
+            setPosition();
         });
         setPosition();
         window.addEventListener("resize", setPosition);

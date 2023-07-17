@@ -291,36 +291,39 @@ const onWebContents = async (index, mainWindow, webViewContents, {item, group}) 
     webViewContents.session.setProxy({proxyRules: proxy});
     webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
 
-    useragent = useragent || ((u) => {
-        u = u.replace(/\s\(/gi, "(");
-        let a = {};
-        let i = 0;
-        let s = false;
-        for (const k in u) {
-            a[i] = a[i] || "";
-            if (u[k] === "(") {
-                s = true;
-                a[i] += " (";
-                continue;
+    /*
+        useragent = useragent || ((u) => {
+            u = u.replace(/\s\(/gi, "(");
+            let a = {};
+            let i = 0;
+            let s = false;
+            for (const k in u) {
+                a[i] = a[i] || "";
+                if (u[k] === "(") {
+                    s = true;
+                    a[i] += " (";
+                    continue;
+                }
+                if (u[k] === ")") s = false;
+                if (u[k] === " " && !s) {
+                    i++;
+                    continue;
+                }
+                a[i] += u[k];
             }
-            if (u[k] === ")") s = false;
-            if (u[k] === " " && !s) {
-                i++;
-                continue;
+            let r = "";
+            for (const k in a) {
+                if (![app.getName(), "Electron"].includes(a[k].split("/")[0])) {
+                    r += " " + a[k];
+                }
             }
-            a[i] += u[k];
-        }
-        let r = "";
-        for (const k in a) {
-            if (![app.getName(), "Electron"].includes(a[k].split("/")[0])) {
-                r += " " + a[k];
-            }
-        }
-        return r.trim();
-    })(webViewContents.getUserAgent());
-    NData.setUserAgent(group.id, useragent);
+            return r.trim();
+        })(webViewContents.getUserAgent());
+        NData.setUserAgent(group.id, useragent);
+    */
 
-    lang ? webViewContents.session.setUserAgent(useragent, lang) : webViewContents.session.setUserAgent(useragent);
+    useragent && lang && webViewContents.session.setUserAgent(useragent, lang);
+    useragent && !lang && webViewContents.session.setUserAgent(useragent);
 
     !webViewContents.debugger.isAttached() && webViewContents.debugger.attach();
     coords = coords || "40.178354870766995,44.513629617002195";
