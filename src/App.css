@@ -96,16 +96,11 @@
     left: 0 !important;
 }
 
-.hidden .groups, .hidden .add-dialog {
+.hidden .groups, .hidden .add-group-dialog {
     visibility: hidden;
     width: 0;
 }
 
-.hidden-slider {
-    position: absolute;
-    top: 59px;
-    z-index: 100;
-}
 
 .sortable-background, .sortable-background * {
     background: #00000001 !important;

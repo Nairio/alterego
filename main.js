@@ -101,8 +101,8 @@ const NData = (() => {
 
     const getData = () => data
 
-    const cardsOpenToggle = () => {
-        data.settings.cardsOpen = !data.settings.cardsOpen;
+    const panelShowToggle = () => {
+        data.settings.panelShow = !data.settings.panelShow;
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
     }
     const setSelectedItemId = (id) => {
@@ -152,7 +152,7 @@ const NData = (() => {
         setonupdate,
         addEditItem,
         deleteItem,
-        cardsOpenToggle,
+        panelShowToggle,
         setSelectedItemId,
         setSelectedGroupId,
         saveGroups,
@@ -371,24 +371,10 @@ const createWindow = () => {
         },
     });
 
-    contextMenu({
-        window: mainWindow,
-        showInspectElement: true,
-        showCopyImage: true,
-        copy: true,
-        showLearnSpelling: true,
-        showCopyImageAddress: true,
-        showSaveImageAs: true,
-        showCopyVideoAddress: true,
-        showSaveVideo: true,
-        showSaveVideoAs: true,
-        showCopyLink: true,
-        showSaveLinkAs: true,
-    });
 
-    const openCardToggle = (e) => {
+    const panelShowToggle = (e) => {
         e.menu.items.map(m => m.visible = !m.visible);
-        NData.cardsOpenToggle();
+        NData.panelShowToggle();
     }
 
     const template = [
@@ -464,17 +450,17 @@ const createWindow = () => {
             ]
         },
         {
-            label: "Cards",
+            label: "Panel",
             submenu: [
                 {
-                    label: "Open",
-                    visible: !NData.getData().settings.cardsOpen,
-                    click: openCardToggle
+                    label: "Show",
+                    visible: !NData.getData().settings.panelShow,
+                    click: panelShowToggle
                 },
                 {
-                    label: "Close",
-                    visible: NData.getData().settings.cardsOpen,
-                    click: openCardToggle
+                    label: "Hide",
+                    visible: NData.getData().settings.panelShow,
+                    click: panelShowToggle
                 }
             ]
         }
