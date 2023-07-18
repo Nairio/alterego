@@ -31,8 +31,13 @@ export default function Webview({item, group}) {
                 address: event.url,
                 canGoBack: webview.canGoBack(),
                 canGoForward: webview.canGoForward(),
+                loading: false
             }]));
         });
+        webview.addEventListener("will-navigate", () => {
+            dispatch(actions.webviews.setLoading([item.id, true]));
+        });
+
         settings.selectedItemId && dispatch(actions.selectedItemId.set(settings.selectedItemId));
         setSRC(item.autostart || item.id === settings.selectedItemId ? item.url : "about:blank")
     }, []);

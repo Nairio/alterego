@@ -29,6 +29,10 @@ const slices = [
 
                 return state
             },
+            setLoading: (state, {payload: [id, loading]}) => {
+                state[id].loading = loading;
+                return state
+            },
         }
     },
     {

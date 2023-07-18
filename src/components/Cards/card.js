@@ -1,4 +1,4 @@
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import React from "react";
 import {actions} from "../../redux/rtk";
 import {ContextMenuItem} from "./context-menu";
@@ -21,9 +21,10 @@ export function Cards({items, group, className}) {
 export function Card({group, item}) {
     const dispatch = useDispatch();
     const openModalDialogItems = (item) => dispatch(actions.modalDialogItems.open(item));
+    const {selectedItemId} = useSelector(state => state);
 
     return (
-        <div key={item.id} className={"card"} id={item.id}>
+        <div key={item.id} className={`card ${selectedItemId===item.id && "selected"}`} id={item.id}>
             <Webview item={item} group={group}/>
             <div className={"footer"}>
                 <div className={"edit"}>
