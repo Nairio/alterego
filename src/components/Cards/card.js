@@ -9,7 +9,7 @@ export function Cards({items, group, className}) {
     const groupItems = items.filter(item => item.groupid === group.id);
     const nonGroupItems = items.filter(item => item.groupid !== group.id);
     const onSort = (a) => window.main.saveItems(a.reduce((a, c) => ([...a, items.filter(i => i.id === c)[0]]), nonGroupItems))
-
+    
     return (
         <Sortable id={group.id} onSort={onSort} className={className}>
             {groupItems.map((item) => (
