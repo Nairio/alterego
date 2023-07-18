@@ -258,14 +258,14 @@ const onWebContents = async (index, mainWindow, webViewContents, {item, group}) 
     contextMenu({
         window: webViewContents,
         showInspectElement: true,
-        showCopyImage: true,
+        //showCopyImage: true,
         copy: true,
-        showLearnSpelling: true,
+        //showLearnSpelling: true,
         showCopyImageAddress: true,
-        showSaveImageAs: true,
+        //showSaveImageAs: true,
         showCopyVideoAddress: true,
-        showSaveVideo: true,
-        showSaveVideoAs: true,
+        //showSaveVideo: true,
+        //showSaveVideoAs: true,
         showCopyLink: true,
         append: () => [
             {
@@ -351,6 +351,7 @@ const onWebContents = async (index, mainWindow, webViewContents, {item, group}) 
         fs.writeFileSync(path.join(getDirName("downloadDirectory"), filename), data);
         event.reply("fileWrite-reply", "")
     });
+
 };
 const createWindow = () => {
     const {height, width} = screen.getPrimaryDisplay().workAreaSize;
@@ -484,6 +485,7 @@ const createWindow = () => {
 
     mainWindow.on("close", app.quit);
 
+
     const menu = NMenu(mainWindow, [["App DevTools", () => mainWindow.webContents.openDevTools()]]);
     mainWindow.webContents.on("context-menu", menu.popup);
     mainWindow.webContents.on("did-attach-webview", () => {
@@ -496,6 +498,7 @@ const createWindow = () => {
             allWebContents.forEach((webViewContents, i) => onWebContents(i, mainWindow, webViewContents, nItems[i]))
         }
     });
+
 
     ipcMain.on("robotClick", (event, element) => {
         mainWindow.webContents.send("leftTop");

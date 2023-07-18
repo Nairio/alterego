@@ -25,12 +25,13 @@ const slices = [
                 return state
             },
             setAddress: (state, {payload: [id, address]}) => {
-                state[id].address = address;
+                state[id] && (state[id].address = address);
 
                 return state
             },
             setLoading: (state, {payload: [id, loading]}) => {
-                state[id].loading = loading;
+                state[id] && (state[id].loading = loading);
+
                 return state
             },
         }

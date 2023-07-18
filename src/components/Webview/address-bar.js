@@ -9,6 +9,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {mainState} from "../../vars";
 import {actions} from "../../redux/rtk";
 import {CircularProgress} from "@mui/material";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 export function AddressBar() {
     const dispatch = useDispatch();
@@ -19,6 +20,7 @@ export function AddressBar() {
     return (
         <div className="big-browser">
             <AddressInput
+                refresh={()=>webview.reload()}
                 loading={loading}
                 open={addressBarShow}
                 canGoForward={canGoForward}
@@ -33,7 +35,7 @@ export function AddressBar() {
         </div>
     )
 }
-export function AddressInput({loading, open, canGoForward, canGoBack, address, onEnter, onChange, goBack, goForward}) {
+export function AddressInput({loading, open, canGoForward, canGoBack,refresh, address, onEnter, onChange, goBack, goForward}) {
     const onAddressChange = (e) => {
         if (e.code === "Enter") {
             onEnter()
@@ -42,9 +44,9 @@ export function AddressInput({loading, open, canGoForward, canGoBack, address, o
     return (
         <div className="address-bar" style={{visibility: open?"visible":"hidden"}}>
             <Paper sx={{p: "2px 4px", display: "flex", alignItems: "center"}}>
-                <IconButton disabled={!canGoBack} onClick={goBack} type="button" sx={{p: "10px"}}><ArrowBackIosNewIcon/></IconButton>
-                <IconButton disabled={!canGoForward} onClick={goForward} type="button" sx={{p: "10px"}}><ArrowForwardIosIcon/></IconButton>
-                {loading && <CircularProgress size={20}/>}
+                <IconButton disabled={!canGoBack} onClick={goBack} type="button" sx={{p: "4px"}}><ArrowBackIosNewIcon/></IconButton>
+                <IconButton disabled={!canGoForward} onClick={goForward} type="button" sx={{p: "4px"}}><ArrowForwardIosIcon/></IconButton>
+                {loading ? <CircularProgress size={24}/> : <IconButton sx={{p: "0px"}} onClick={refresh}><RefreshIcon/></IconButton>}
                 <InputBase value={address} onKeyPress={onAddressChange} onChange={e => onChange(e.target.value)} fullWidth sx={{ml: 1, flex: 1}} placeholder="https://example.com"/>
                 <IconButton onClick={onEnter} type="button" sx={{p: "10px"}}><SearchIcon/></IconButton>
             </Paper>

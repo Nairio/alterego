@@ -27,15 +27,25 @@ export default function Webview({item, group}) {
             webview.setAttribute("ready", "true");
         });
         webview.addEventListener("did-navigate", (event) => {
+            webview.setZoomFactor(+webview.getAttribute("zoom"));
             dispatch(actions.webviews.set([item.id, {
                 address: event.url,
                 canGoBack: webview.canGoBack(),
                 canGoForward: webview.canGoForward(),
-                loading: false
             }]));
         });
-        webview.addEventListener("will-navigate", () => {
+        webview.addEventListener("will-navigate", (event) => {
+            dispatch(actions.webviews.set([item.id, {
+                address: event.url,
+                canGoBack: webview.canGoBack(),
+                canGoForward: webview.canGoForward(),
+            }]));
+        });
+        webview.addEventListener("did-start-loading", () => {
             dispatch(actions.webviews.setLoading([item.id, true]));
+        });
+        webview.addEventListener("did-stop-loading", () => {
+            dispatch(actions.webviews.setLoading([item.id, false]));
         });
 
         settings.selectedItemId && dispatch(actions.selectedItemId.set(settings.selectedItemId));
