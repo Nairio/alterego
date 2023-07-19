@@ -21,7 +21,7 @@ export function Cards({items, group, className}) {
 export function Card({group, item}) {
     const dispatch = useDispatch();
     const openModalDialogItems = (item) => dispatch(actions.modalDialogItems.open(item));
-    const {selectedItemId} = useSelector(state => state);
+    const selectedItemId = useSelector(state => state.selectedItemId);
 
     return (
         <div key={item.id} className={`card ${selectedItemId===item.id && "selected"}`} id={item.id}>

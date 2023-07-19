@@ -6,15 +6,18 @@ import SearchIcon from "@mui/icons-material/Search";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import {useDispatch, useSelector} from "react-redux";
-import {mainState} from "../../vars";
 import {actions} from "../../redux/rtk";
 import {CircularProgress} from "@mui/material";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import {mainState} from "../../vars";
 
 export function AddressBar() {
     const dispatch = useDispatch();
-    const {selectedItemId, addressBarShow, webviews} = useSelector(state => state);
+    const selectedItemId = useSelector(state => state.selectedItemId);
+    const addressBarShow = useSelector(state => state.addressBarShow);
+    const webviews = useSelector(state => state.webviews);
     const webview = mainState.webViews[selectedItemId];
+
     const {loading, canGoForward, canGoBack, address} = webviews[selectedItemId] || {canGoForward: false, canGoBack: false, address: ""};
 
     return (

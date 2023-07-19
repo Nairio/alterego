@@ -39,7 +39,7 @@ export function Group({group, items, settings}) {
     return (
         <div key={group.id} className={"group"} id={group.id}>
             <div className={`header accordion-header ${settings.selectedGroupId === group.id ? "active" : ""}`}>
-                <ContextMenuGroup group={group} deleteGroup={window.main.deleteGroup} editGroup={openModalDialogGroup} addItem={openModalDialogItems}/>
+                <ContextMenuGroup group={group} clearCache={window.main.clearCache} deleteGroup={window.main.deleteGroup} editGroup={openModalDialogGroup} addItem={openModalDialogItems}/>
                 <small onClick={() => selectedGroupId(group.id)}>{group.description}</small>
             </div>
             <Cards className={"accordion-content"} items={items} group={group}/>

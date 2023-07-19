@@ -7,12 +7,14 @@ import {Items} from "./components/Cards/items";
 import {AddressBar} from "./components/Webview/address-bar";
 
 
+
 export default function App() {
     const dispatch = useDispatch();
 
     const setPosition = () => {
-        const topleft = document.querySelector(".top-left");
         const widthheight = document.querySelector(".width-height");
+        const topleft = document.querySelector(".top-left");
+        if(!widthheight || !topleft)return;
         const computedStyle1 = window.getComputedStyle(topleft);
         const computedStyle2 = window.getComputedStyle(widthheight);
         const top = computedStyle1.getPropertyValue("top");

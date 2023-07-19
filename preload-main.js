@@ -21,6 +21,7 @@ window.main = (() => {
         },
 
         deleteGroup: async (group) => confirm("Delete?") && send("deleteGroup", group),
+        clearCache: async (group) => confirm("Clear cache?") && send("clearCache", group),
         deleteItem: async (item) => confirm("Delete?") && send("deleteItem", item),
         addEditItem: async (item) => send("addEditItem", item),
         addEditGroup: async (group) => send("addEditGroup", group),
@@ -32,6 +33,7 @@ window.main = (() => {
         openDownloadDirectory: () => send("openDownloadDirectory"),
         setSelectedItemId: (id) => ipcRenderer.send("setSelectedItemId", id),
         setSelectedGroupId: (id) => ipcRenderer.send("setSelectedGroupId", id),
+
     }
 })();
 

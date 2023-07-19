@@ -5,6 +5,7 @@ const {exec} = require("child_process");
 const robot = require("robotjs");
 const contextMenu = require("electron-context-menu");
 
+const webviews = {};
 const loadIndex = {};
 const getDirName = (...items) => {
     const dirName = path.join(app.getPath("appData"), app.getName(), ...items);
@@ -187,8 +188,6 @@ ipcMain.on("addEditGroup", async (event, group) => {
     await NData.addEditGroup(group);
     event.reply("addEditGroup-reply", "ok");
 });
-
-
 ipcMain.on("deleteItem", async (event, item) => {
     await NData.deleteItem(item);
     event.reply("deleteItem-reply", "ok");
@@ -197,7 +196,18 @@ ipcMain.on("deleteGroup", async (event, group) => {
     await NData.deleteGroup(group);
     event.reply("deleteGroup-reply", "ok");
 });
-
+ipcMain.on("clearCache", async (event, group) => {
+    for (const id in webviews[group.id]) {
+        const webViewContents = webviews[group.id][id];
+        await webViewContents.session.clearCache();
+        await webViewContents.session.clearHostResolverCache();
+        await webViewContents.session.clearAuthCache();
+        await webViewContents.session.clearStorageData();
+        await webViewContents.clearHistory();
+        await webViewContents.reload()
+    }
+    event.reply("clearCache-reply", "ok");
+});
 ipcMain.on("saveItems", async (event, items) => {
     await NData.saveItems(items);
     event.reply("saveItems-reply", "ok");
@@ -241,6 +251,8 @@ ipcMain.on("getFields", (event, id) => {
 const onWebContents = async (index, mainWindow, webViewContents, {item, group}) => {
     let {proxy, lang, useragent, coords} = group;
     const {id, scriptfile} = item;
+    webviews[group.id] = webviews[group.id] || {};
+    webviews[group.id][id] = webViewContents;
 
     if (scriptfile) {
         const fileName = getFileName("", "scripts", scriptfile);
@@ -279,7 +291,7 @@ const onWebContents = async (index, mainWindow, webViewContents, {item, group}) 
                         await webViewContents.session.clearCache();
                         await webViewContents.session.clearHostResolverCache();
                         await webViewContents.session.clearAuthCache();
-                        await webViewContents.session.clearStorageData();
+                        //await webViewContents.session.clearStorageData();
                         await webViewContents.clearHistory();
                         await webViewContents.reload()
                     }
@@ -290,37 +302,6 @@ const onWebContents = async (index, mainWindow, webViewContents, {item, group}) 
 
     webViewContents.session.setProxy({proxyRules: proxy});
     webViewContents.session.setPreloads([path.join(__dirname, "preload-webview.js")]);
-
-    /*
-        useragent = useragent || ((u) => {
-            u = u.replace(/\s\(/gi, "(");
-            let a = {};
-            let i = 0;
-            let s = false;
-            for (const k in u) {
-                a[i] = a[i] || "";
-                if (u[k] === "(") {
-                    s = true;
-                    a[i] += " (";
-                    continue;
-                }
-                if (u[k] === ")") s = false;
-                if (u[k] === " " && !s) {
-                    i++;
-                    continue;
-                }
-                a[i] += u[k];
-            }
-            let r = "";
-            for (const k in a) {
-                if (![app.getName(), "Electron"].includes(a[k].split("/")[0])) {
-                    r += " " + a[k];
-                }
-            }
-            return r.trim();
-        })(webViewContents.getUserAgent());
-        NData.setUserAgent(group.id, useragent);
-    */
 
     useragent && lang && webViewContents.session.setUserAgent(useragent, lang);
     useragent && !lang && webViewContents.session.setUserAgent(useragent);
@@ -477,7 +458,10 @@ const createWindow = () => {
     mainWindow.webContents.on("did-attach-webview", () => {
         const {items, groups} = NData.getData();
         const nItems = [];
-        groups.forEach(group => items.filter(item => item.groupid === group.id).forEach(item => nItems.push({item, group})));
+        groups.forEach(group => items.filter(item => item.groupid === group.id).forEach(item => nItems.push({
+            item,
+            group
+        })));
 
         const allWebContents = webContents.getAllWebContents().filter(c => c.hostWebContents && c.hostWebContents.id === mainWindow.webContents.id).sort((a, b) => a.id - b.id)
         if (items.length === allWebContents.length) {

@@ -4,8 +4,9 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {PlusOne} from "@mui/icons-material";
+import ClearIcon from '@mui/icons-material/Clear';
 
-export function ContextMenuGroup({addItem, editGroup, deleteGroup, group}) {
+export function ContextMenuGroup({addItem, editGroup, deleteGroup, clearCache, group}) {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -19,6 +20,7 @@ export function ContextMenuGroup({addItem, editGroup, deleteGroup, group}) {
                 <MenuItem onClick={addItemhandle}><IconButton><PlusOne sx={{fontSize: "small"}}/></IconButton>Add Item</MenuItem>
                 <MenuItem onClick={() => {editGroup(group);handleClose()}}><IconButton><EditIcon sx={{fontSize: "small"}}/></IconButton>Edit</MenuItem>
                 <MenuItem onClick={() => {deleteGroup(group);handleClose()}}><IconButton><DeleteIcon sx={{fontSize: "small"}}/></IconButton>Delete</MenuItem>
+                <MenuItem onClick={() => {clearCache(group);handleClose()}}><IconButton><ClearIcon sx={{fontSize: "small"}}/></IconButton>Clear Cache</MenuItem>
             </Menu>
         </>
     );

@@ -9,11 +9,12 @@ export default function Webview({item, group}) {
     const WVRef = useRef();
     const dispatch = useDispatch();
     const [src, setSRC] = useState("");
-    const {selectedItemId, position: {left, top, width, height}} = useSelector(state => state);
-    const {settings} = useSelector(state => state);
+    const selectedItemId = useSelector(state => state.selectedItemId);
+    const position = useSelector(state => state.position);
+    const settings = useSelector(state => state.settings);
+    const {left, top, width, height} = position;
 
     const setZoomFactor = (w, factor, style) => {
-        window.dispatchEvent(new UIEvent("resize"));
         w.setAttribute("style", style);
         w.setAttribute("zoom", factor);
         w.getAttribute("ready") && w.setZoomFactor(factor);
