@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/browser.iml" filepath="$PROJECT_DIR$/.idea/browser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/alterego.iml" filepath="$PROJECT_DIR$/.idea/alterego.iml" />
     </modules>
   </component>
 </project>
