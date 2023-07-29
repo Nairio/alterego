@@ -53,7 +53,7 @@ const NMenu = (win, items) => {
     }
 };
 const NData = (() => {
-    const fileName = getFileName("{groups:[], items: [], settings: {}}", "data.json");
+    const fileName = getFileName('{"groups":[], "items": [], "settings": {}}', "data.json");
 
     let onupdate;
     let data;

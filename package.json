@@ -1,10 +1,10 @@
 {
-  "name": "browser",
-  "productName": "browser",
+  "name": "alterego",
+  "productName": "Alter Ego",
   "homepage": "./",
   "version": "1.0.0",
   "private": true,
-  "description": "Browser",
+  "description": "Alter Ego",
   "main": "main.js",
   "scripts": {
     "start-react": "react-scripts start",
