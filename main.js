@@ -129,14 +129,12 @@ const NData = (() => {
     const deleteGroup = async (group) => {
         const index = data.groups.findIndex(({id}) => id === group.id);
         data.groups.splice(index, 1);
-
         data.items.filter(item => item.groupid === group.id).forEach(item => {
             const index = data.items.findIndex(({id}) => id === item.id);
             data.items.splice(index, 1);
-        })
-
-
+        });
         fs.writeFileSync(fileName, JSON.stringify(data, null, " "));
+        fs.rmSync(path.join(getDirName("Partitions"), group.id), {recursive: true});
     }
 
     const setUserAgent = (groupid, useragent) => {

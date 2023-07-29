@@ -21,7 +21,7 @@ window.getItem = () => {
         ipcRenderer.on("getItem-reply", (event, item) => resolve(item));
     }))
 }
-window.waitSelector = (selectors, speed = 1000) => {
+window.waitSelector = (selectors, speed = 1000, timeout) => {
     return new Promise((resolve => {
         const i = setInterval(() => {
             const search = document.querySelector(selectors);
@@ -29,9 +29,30 @@ window.waitSelector = (selectors, speed = 1000) => {
                 clearInterval(i);
                 resolve(search);
             }
-        }, speed)
+        }, speed);
+        timeout && setTimeout(() => {
+            clearInterval(i);
+            resolve(false);
+        }, timeout)
     }))
 }
+window.waitSelectorByText = (text, speed = 1000, timeout) => {
+    return new Promise((resolve => {
+        const i = setInterval(() => {
+            const search = Array.from(document.querySelectorAll('*')).find(el => el.innerHTML === text);
+            if (search) {
+                clearInterval(i);
+                resolve(search);
+            }
+        }, speed);
+        timeout && setTimeout(() => {
+            clearInterval(i);
+            resolve(false);
+        }, timeout)
+
+    }))
+}
+
 window.sleep = (microsecond = 1000) => {
     return new Promise((resolve => {
         const i = setTimeout(() => {
