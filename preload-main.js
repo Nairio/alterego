@@ -1,8 +1,5 @@
 const {ipcRenderer} = require("electron");
-
-
 ipcRenderer.setMaxListeners(1000);
-
 const send = (msg, data) => {
     return new Promise((resolve) => {
         ipcRenderer.send(msg, data);
@@ -36,8 +33,6 @@ window.main = (() => {
 
     }
 })();
-
-
 ipcRenderer.on("leftTop", (event) => {
     const topleft = document.querySelector(".top-left");
     const x = window.outerWidth - window.innerWidth + topleft.offsetLeft;
@@ -46,6 +41,39 @@ ipcRenderer.on("leftTop", (event) => {
 });
 ipcRenderer.on("confirm", (event, text) => {
     event.sender.send("confirm-reply", window.confirm(text))
+});
+
+
+let stopFindInPage, findInPage, created, div, button, input, span;
+
+const create = () => {
+    div = document.body.appendChild(document.createElement("div"));
+    div.setAttribute("style", "padding:4px; border:solid 1px #000; position: absolute; background: #fff; right: 8px; top: 58px; z-index: 10000");
+    button = div.appendChild(document.createElement("button"));
+    span = div.appendChild(document.createElement("span"));
+    div.setAttribute("style", "margin:4px");
+
+    button.innerHTML = "x";
+    button.onclick = () => {
+        div.style.display = "none";
+        stopFindInPage();
+    }
+    input = div.appendChild(document.createElement("input"));
+    input.onkeyup = (e) => e.code==="Enter" && findInPage(input.value);
+}
+
+
+ipcRenderer.on("found-in-page", (event, result) => {
+    span.innerText = `${result.activeMatchOrdinal}/${result.matches}`;
+    console.log(result);
+    input.focus()
+});
+ipcRenderer.on("find", (event, text) => {
+    !created && create();
+    div.style.display = "block";
+    input.focus();
+    stopFindInPage = () => event.sender.send("find-stopFindInPage");
+    findInPage = (text) => event.sender.send("find-findInPage", text);
 });
 
 

@@ -6,9 +6,9 @@ window.fileWrite = (filename, data="") => {
         ipcRenderer.on("fileWrite-reply", (event, data) => resolve(data));
     })
 }
-window.fileRead = (filename) => {
+window.fileRead = (filename, defValue = "") => {
     return new Promise((resolve) => {
-        ipcRenderer.send("fileRead", {filename});
+        ipcRenderer.send("fileRead", {filename, defValue});
         ipcRenderer.on("fileRead-reply", (event, data) => resolve(data));
     })
 }

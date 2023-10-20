@@ -322,8 +322,10 @@ const onWebContents = async (index, mainWindow, webViewContents, {item, group}) 
     webViewContents.ipc.on("setFields", (event, fields) => {
         NFields.setFields(fields, id);
     });
-    webViewContents.ipc.on("fileRead", (event, {filename}) => {
-        const data = fs.readFileSync(path.join(getDirName("downloadDirectory"), filename), "utf8");
+    webViewContents.ipc.on("fileRead", (event, {filename, defValue}) => {
+        const fn = path.join(getDirName("downloadDirectory"), filename);
+        !fs.existsSync(fn) && fs.writeFileSync(fn, defValue);
+        const data = fs.readFileSync(fn, "utf8");
         event.reply("fileRead-reply", data)
     });
     webViewContents.ipc.on("fileWrite", (event, {filename, data}) => {
@@ -425,6 +427,27 @@ const createWindow = () => {
                 {
                     label: "Paste",
                     role: "paste"
+                },
+                {
+                    label: "Select All",
+                    role: "selectall"
+                },
+                {
+                    label: 'Find',
+                    accelerator: 'CmdOrCtrl+F',
+                    click: () => {
+                        mainWindow.webContents.send("find");
+                        mainWindow.webContents.on('found-in-page', (event, result) => {
+                            mainWindow.webContents.send("found-in-page", result);
+                        });
+
+                        ipcMain.on("find-findInPage", (e, text) => {
+                            text && mainWindow.webContents.findInPage(text);
+                        });
+                        ipcMain.on("find-stopFindInPage", (e) => {
+                            mainWindow.webContents.stopFindInPage("clearSelection");
+                        });
+                    },
                 }
             ]
         },
@@ -467,7 +490,6 @@ const createWindow = () => {
         }
     });
 
-
     ipcMain.on("robotClick", (event, element) => {
         mainWindow.webContents.send("leftTop");
         ipcMain.on("leftTop-reply", (e, page) => {
@@ -499,7 +521,6 @@ const createWindow = () => {
     ipcMain.on("setSelectedGroupId", (event, id) => {
         NData.setSelectedGroupId(id)
     });
-
 
     app.isPackaged
         ? mainWindow.loadFile(path.join(__dirname, "build", "index.html"))
